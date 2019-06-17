@@ -1,0 +1,10 @@
+{
+  "data_uid": "d5b5c4043b0c5741", 
+  "data_name": "ck-object-detection", 
+  "dict": {
+    "url": "https://github.com/ctuning/ck-object-detection", 
+    "shared": "git"
+  }, 
+  "data_alias": "ck-object-detection", 
+  "data_uoa": "ck-object-detection"
+}

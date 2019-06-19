@@ -46,10 +46,7 @@ RUN cd ${CK_ROOT} \
  && ${CK_PYTHON} -c "import ck.kernel as ck; print ('Collective Knowledge v%s' % ck.__version__)"
 
 # Pull CK repositories (including ck-env, ck-autotuning and ck-tensorflow).
-#RUN ck pull repo:ck-object-detection
-#RUN ck pull repo:ck-tensorflow
-#RUN ck pull repo:ck-env
-# in order to share more space, let's just use ck-mlperf that is the one used by other containers. it contains as dependencies the other repos (ck-object-detection excluded)
+# NB: To share more space, we only pull repo:ck-mlperf here, as it's what other containers use.
 RUN ck pull repo:ck-mlperf
 
 # Use generic Linux settings with dummy frequency setting scripts.
@@ -88,8 +85,7 @@ RUN echo | ck install package --tags=object-detection,dataset,coco.2017,val,orig
  && ck virtual env --tags=object-detection,dataset,coco.2017,val,original,full --shell_cmd=\
 'rm $CK_ENV_DATASET_COCO_LABELS_DIR/*train2017.json'
 
-
-# Download the SSD-resnet50 TF model.
+# Download the SSD-ResNet50 TF model.
 RUN ck install package:tensorflowmodel-object-detection-ssd-resnet50-v1-fpn-sbp-640x640-coco
 
 # Run the Object Detection TF-Python program

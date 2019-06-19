@@ -1,4 +1,4 @@
-# [Object Detection - SSD resnet 50 - TF-Python (Debian 9)](https://hub.docker.com/r/ctuning/object-detection-tf-py.debian-9)
+# [Object Detection - SSD-ResNet50 - TF-Python (Debian 9)](https://hub.docker.com/r/ctuning/object-detection-tf-py.ssd-resnet50.debian-9)
 
 1. [Default image](#image_default) (based on [Debian](https://hub.docker.com/_/debian/) 9 latest)
     - [Download](#image_default_download) or [Build](#image_default_build)
@@ -16,18 +16,18 @@
 <a name="image_default_download"></a>
 ### Download
 ```
-$ docker pull ctuning/object-detection-ssd-resnet50-tf-py.debian-9
+$ docker pull ctuning/object-detection-tf-py.ssd-resnet50.debian-9
 ```
 
 <a name="image_default_build"></a>
 ### Build
 ```bash
-$ ck build docker:object-detection-ssd-resnet50-tf-py.debian-9
+$ ck build docker:object-detection-tf-py.ssd-resnet50.debian-9
 ```
 **NB:** Equivalent to:
 ```bash
-$ cd `ck find docker:object-detection-ssd-resnet50-tf-py.debian-9`
-$ docker build -f Dockerfile -t ctuning/object-detection-ssd-resnet50-tf-py.debian-9 .
+$ cd `ck find docker:object-detection-tf-py.ssd-resnet50.debian-9`
+$ docker build -f Dockerfile -t ctuning/object-detection-tf-py.ssd-resnet50.debian-9 .
 ```
 
 <a name="image_default_run"></a>
@@ -38,16 +38,15 @@ $ docker build -f Dockerfile -t ctuning/object-detection-ssd-resnet50-tf-py.debi
 
 ##### 50 images
 ```bash
-$ ck run docker:object-detection-ssd-resnet50-tf-py.debian-9
+$ ck run docker:object-detection-tf-py.ssd-resnet50.debian-9
 ```
 **NB:** Equivalent to:
 ```bash
-$ docker run --rm ctuning/object-detection-ssd-resnet50-tf-py.debian-9 \
+$ docker run --rm ctuning/object-detection-tf-py.ssd-resnet50.debian-9 \
     "ck run program:object-detection-tf-py \
         --env.CK_BATCH_COUNT=50 \
     "
-```
-
+...
 Summary:
 -------------------------------
 Graph loaded in 1.345360s
@@ -57,20 +56,18 @@ Average detection time: 0.661560s
 mAP: 0.414449934563344
 Recall: 0.46153925387789685
 --------------------------------
-
-
+```
 
 <a name="image_default_run_custom"></a>
 #### Object Detection (custom command)
 
 ##### 5000 images
 ```bash
-$ docker run --rm ctuning/object-detection-ssd-resnet50-tf-py.debian-9 \
+$ docker run --rm ctuning/object-detection-tf-py.ssd-resnet50.debian-9 \
     "ck run program:object-detection-tf-py \
         --env.CK_BATCH_COUNT=5000 \
     "
-```
-
+...
 Summary:
 -------------------------------
 Graph loaded in 1.270971s
@@ -80,12 +77,10 @@ Average detection time: 0.813349s
 mAP: 0.3834113724148717
 Recall: 0.45780387187265914
 --------------------------------
-
-
-
+```
 
 <a name="image_default_run_bash"></a>
 #### Bash
 ```bash
-$ docker run -it --rm ctuning/object-detection-ssd-resnet50-tf-py.debian-9 bash
+$ docker run -it --rm ctuning/object-detection-tf-py.ssd-resnet50.debian-9 bash
 ```

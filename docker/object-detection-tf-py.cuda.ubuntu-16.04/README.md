@@ -59,7 +59,7 @@ $ docker run --runtime=nvidia --rm ctuning/object-detection-tf-py.cuda.ubuntu-16
         --dep_add_tags.weights=ssd-mobilenet,non-quantized \
         --dep_add_tags.dataset=coco.2017,full --env.CK_BATCH_COUNT=50 \
     "
-```
+...
 Summary
 -------------------------------
 Graph loaded in 0.762601s
@@ -69,7 +69,7 @@ Average detection time: 0.040630s
 mAP: 0.3148934914889957
 Recall: 0.3225293342489256
 --------------------------------
-
+```
 
 
 <a name="image_default_run_custom"></a>
@@ -82,7 +82,7 @@ $ docker run --runtime=nvidia --rm ctuning/object-detection-tf-py.cuda.ubuntu-16
         --dep_add_tags.weights=ssd-mobilenet,non-quantized \
         --dep_add_tags.dataset=coco.2017,full --env.CK_BATCH_COUNT=5000 \
     "
-```
+...
 Summary:
 -------------------------------
 Graph loaded in 0.827014s
@@ -92,7 +92,7 @@ Average detection time: 0.041158s
 mAP: 0.23111170526465216
 Recall: 0.26304841188725403
 --------------------------------
-
+```
 
 
 <a name="image_default_run_bash"></a>

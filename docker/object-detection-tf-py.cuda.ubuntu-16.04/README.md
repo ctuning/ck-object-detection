@@ -58,6 +58,7 @@ $ docker run --runtime=nvidia --rm ctuning/object-detection-tf-py.cuda.ubuntu-16
     "ck run program:object-detection-tf-py \
         --dep_add_tags.weights=ssd-mobilenet,non-quantized \
         --dep_add_tags.dataset=coco.2017,full --env.CK_BATCH_COUNT=50 \
+        --env.CK_TF_GPU_MEMORY_PERCENT=75 \
     "
 ...
 Summary

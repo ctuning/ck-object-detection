@@ -94,5 +94,9 @@ RUN echo | ck install package --tags=object-detection,dataset,coco.2017,val,orig
 
 # Run the Object Detection TF-Python program
 # with the non-quantized SSD-MobileNet model 
-# on the first 50 images of the COCO 2017 validation dataset.
-CMD ["ck run program:object-detection-tf-py --env.CK_BATCH_COUNT=50 --dep_add_tags.weights=non-quantized"]
+# on the first 50 images of the COCO 2017 validation dataset
+# using 75% of the total GPU memory (e.g. 6 GB out of 8 GB).
+CMD ["ck run program:object-detection-tf-py \
+--dep_add_tags.weights=non-quantized \
+--dep_add_tags.dataset=coco.2017,full --env.CK_BATCH_COUNT=50 \
+--env.CK_TF_GPU_MEMORY_PERCENT=75"]

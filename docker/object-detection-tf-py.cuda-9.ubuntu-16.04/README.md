@@ -1,4 +1,4 @@
-# [Object Detection - TF-Python with CUDA support (NVIDIA Ubuntu 16.04, CUDA 9.0, cuDNN 7.0)](https://hub.docker.com/r/ctuning/object-detection-tf-py.cuda.ubuntu-16.04)
+# [Object Detection - TF-Python with CUDA support (NVIDIA Ubuntu 16.04, CUDA 9.0, cuDNN 7.0)](https://hub.docker.com/r/ctuning/object-detection-tf-py.cuda-9.ubuntu-16.04)
 
 1. [Prerequisites](#setup)
     - [NVIDIA Docker and libraries](#nvidia)
@@ -28,18 +28,18 @@ Please follow [NVIDIA's instructions](https://github.com/NVIDIA/nvidia-docker) t
 <a name="image_default_download"></a>
 ### Download
 ```
-$ docker pull ctuning/object-detection-tf-py.cuda.ubuntu-16.04
+$ docker pull ctuning/object-detection-tf-py.cuda-9.ubuntu-16.04
 ```
 
 <a name="image_default_build"></a>
 ### Build
 ```bash
-$ ck build docker:object-detection-tf-py.cuda.ubuntu-16.04
+$ ck build docker:object-detection-tf-py.cuda-9.ubuntu-16.04
 ```
 **NB:** Equivalent to:
 ```bash
-$ cd `ck find docker:object-detection-tf-py.cuda.ubuntu-16.04`
-$ docker build -f Dockerfile -t ctuning/object-detection-tf-py.cuda.ubuntu-16.04 .
+$ cd `ck find docker:object-detection-tf-py.cuda-9.ubuntu-16.04`
+$ docker build -f Dockerfile -t ctuning/object-detection-tf-py.cuda-9.ubuntu-16.04 .
 ```
 
 <a name="image_default_run"></a>
@@ -50,11 +50,11 @@ $ docker build -f Dockerfile -t ctuning/object-detection-tf-py.cuda.ubuntu-16.04
 
 ##### 50 images
 ```bash
-$ ck run docker:object-detection-tf-py.cuda.ubuntu-16.04
+$ ck run docker:object-detection-tf-py.cuda-9.ubuntu-16.04
 ```
 **NB:** Equivalent to:
 ```bash
-$ docker run --runtime=nvidia --rm ctuning/object-detection-tf-py.cuda.ubuntu-16.04 \
+$ docker run --runtime=nvidia --rm ctuning/object-detection-tf-py.cuda-9.ubuntu-16.04 \
     "ck run program:object-detection-tf-py \
         --dep_add_tags.weights=ssd-mobilenet,non-quantized \
         --dep_add_tags.dataset=coco.2017,full --env.CK_BATCH_COUNT=50 \
@@ -78,7 +78,7 @@ Recall: 0.3225293342489256
 
 ##### 5000 images
 ```bash
-$ docker run --runtime=nvidia --rm ctuning/object-detection-tf-py.cuda.ubuntu-16.04 \
+$ docker run --runtime=nvidia --rm ctuning/object-detection-tf-py.cuda-9.ubuntu-16.04 \
     "ck run program:object-detection-tf-py \
         --dep_add_tags.weights=ssd-mobilenet,non-quantized \
         --dep_add_tags.dataset=coco.2017,full --env.CK_BATCH_COUNT=5000 \
@@ -98,5 +98,5 @@ Recall: 0.26304841188725403
 <a name="image_default_run_bash"></a>
 #### Bash
 ```bash
-$ docker run --runtime=nvidia -it --rm ctuning/object-detection-tf-py.cuda.ubuntu-16.04 bash
+$ docker run --runtime=nvidia -it --rm ctuning/object-detection-tf-py.cuda-9.ubuntu-16.04 bash
 ```

@@ -76,11 +76,11 @@ RUN ${CK_PYTHON} -m pip install keras_preprocessing==1.0.2 --no-deps --user
 # Install Python COCO API.
 RUN ck install package --tags=tool,coco,api
 
-# Install TF.
-# Install CK packages for tensorflow
+# Detect CUDA, cuDNN and cuBLAS.
 RUN echo "" | ck detect soft:compiler.cuda \
  && ck detect soft:lib.cudnn \
  && echo "" | ck detect soft:lib.cublas 
+# Install TF.
 RUN ck install package --tags=lib,tensorflow-cuda,vprebuilt,vcuda,v1.12.0
 
 # Download the SSD-MobileNet TF models (non-quantized and quantized).
@@ -91,7 +91,6 @@ RUN ck install package --tags=model,tf,object-detection,mlperf,ssd-mobilenet,qua
 RUN echo | ck install package --tags=object-detection,dataset,coco.2017,val,original,full\
  && ck virtual env --tags=object-detection,dataset,coco.2017,val,original,full --shell_cmd=\
 'rm $CK_ENV_DATASET_COCO_LABELS_DIR/*train2017.json'
-
 
 # Run the Object Detection TF-Python program
 # with the non-quantized SSD-MobileNet model 

@@ -1,9 +1,9 @@
-# [Object Detection - TF-Python with CUDA support (Nvidia/Ubuntu16.04, CUDA 9.0, cudnn 7.0)](https://hub.docker.com/r/ctuning/object-detection-tf-py.cuda.ubuntu-16.04)
+# [Object Detection - TF-Python with CUDA support (NVIDIA Ubuntu 16.04, CUDA 9.0, cuDNN 7.0)](https://hub.docker.com/r/ctuning/object-detection-tf-py.cuda.ubuntu-16.04)
 
-1. [Prereq](#prereq)
-    - [CUDA Drivers & Nvidia Docker](#cuda_drivers&docker)
+1. [Prerequisites](#setup)
+    - [NVIDIA Docker and libraries](#nvidia)
 
-1. [Default image](#image_default) (based on [Nvidia/Ubuntu16.04](https://hub.docker.com/r/nvidia/cuda/) Ubuntu 16.04 )
+1. [Default image](#image_default) (based on [NVIDIA Ubuntu](https://hub.docker.com/r/nvidia/cuda/) 16.04)
     - [Download](#image_default_download) or [Build](#image_default_build)
     - [Run](#image_default_run)
         - [Object Detection (default command)](#image_default_run_default)
@@ -13,13 +13,13 @@
 **NB:** You may need to run commands below with `sudo`, unless you
 [manage Docker as a non-root user](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user).
 
-<a name="cuda_drivers&docker"></a>
-## System Setup
+<a name="nvidia"></a>
+## System setup
 
-Follow the instruction in https://github.com/NVIDIA/nvidia-docker to prepare the system to run this container.
-This container is based on an nvidia container, and it requires to have the nvidia-docker environment installed to work.
-
-
+<a name="nvidia"></a>
+## NVIDIA Docker and libraries
+As this container is based on an NVIDIA container, and it requires `nvidia-docker` installed to work.
+Please follow [NVIDIA's instructions](https://github.com/NVIDIA/nvidia-docker) to prepare your system to run this container.
 
 
 <a name="image_default"></a>
@@ -93,7 +93,6 @@ mAP: 0.23111170526465216
 Recall: 0.26304841188725403
 --------------------------------
 ```
-
 
 <a name="image_default_run_bash"></a>
 #### Bash

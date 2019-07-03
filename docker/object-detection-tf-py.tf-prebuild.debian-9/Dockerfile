@@ -22,9 +22,10 @@ RUN apt update -y\
  python3 python3-pip\
  vim\
  && apt clean
-
+#not needed, but allows to share with tf-src-cpu
+RUN ln -s /usr/bin/python3 /usr/bin/python 
 # Create non-root user.
-RUN useradd --create-home --user-group --shell /bin/bash dvdt
+RUN useradd -u 2000 --create-home --user-group --shell /bin/bash dvdt
 USER dvdt:dvdt
 WORKDIR /home/dvdt
 
@@ -69,26 +70,56 @@ RUN ck install package --tags=lib,python-package,cython
 RUN ck show env --tags=python-package
 
 RUN ${CK_PYTHON} -m pip install gast --user
+RUN ${CK_PYTHON} -m pip install numpy --user
+RUN ${CK_PYTHON} -m pip install protobuf --user
+RUN ${CK_PYTHON} -m pip install absl-py --user
+RUN ${CK_PYTHON} -m pip install wrapt --user
 RUN ${CK_PYTHON} -m pip install astor --user
 RUN ${CK_PYTHON} -m pip install termcolor --user
-RUN ${CK_PYTHON} -m pip install tensorflow-estimator==1.13.0 --user
-RUN ${CK_PYTHON} -m pip install keras_applications==1.0.4 --no-deps --user
-RUN ${CK_PYTHON} -m pip install keras_preprocessing==1.0.2 --no-deps --user
+RUN ${CK_PYTHON} -m pip install tensorflow-estimator==1.14.0 --user
+RUN ${CK_PYTHON} -m pip install keras_applications==1.0.6 --no-deps --user
+RUN ${CK_PYTHON} -m pip install keras_preprocessing==1.0.5 --no-deps --user
 # Install Python COCO API.
 RUN ck install package --tags=tool,coco,api
 
-# Install TF.
-RUN ck install package:lib-tensorflow-1.13.1-cpu
- 
+#Dataset first 
 # Download the COCO 2017 validation dataset (5,000 images) to the default path;
 RUN echo | ck install package --tags=object-detection,dataset,coco.2017,val,original,full\
  && ck virtual env --tags=object-detection,dataset,coco.2017,val,original,full --shell_cmd=\
 'rm $CK_ENV_DATASET_COCO_LABELS_DIR/*train2017.json'
 
+#TF second
+# Install TF.
+RUN ck install package:lib-tensorflow-1.14.0-cpu
+
+#Models third
 # Download the SSD-ResNet50 TF model.
 RUN ck install package:tensorflowmodel-object-detection-ssd-resnet50-v1-fpn-sbp-640x640-coco
+# Download the SSD-MobileNet TF models (non-quantized and quantized).
+RUN ck install package --tags=model,tf,object-detection,mlperf,ssd-mobilenet,non-quantized
+RUN ck install package --tags=model,tf,object-detection,mlperf,ssd-mobilenet,quantized,finetuned
+
+#Last step
+#change dependencies to support "external" benchmarking. 
+#we want to launch the container with a volume attached to it, and the permission to write that volume will be of the user on the host machine.
+#the dvdt user in the docker container will NOT be able to write there.
+#launching the docker container with --user=$(id -u):$(id -g) allows to be the user in the docker container. 
+#However, the user cannot read/write by default the dvdt userspace. 
+#For this reason we have to change the permission to the dvdt userspace.
+#note that this step allows to have the result, on the mounted volume, as if they were created by the user, after the end of the container run.
+RUN chmod -R 777 ~/.local
+RUN chmod -R 777 ~/CK
+RUN chmod -R 777 ~/CK_REPOS
+RUN chmod -R 777 ~/CK_TOOLS
+
+
+#entry for the experiment folder, that will be mounted as a shared volume between dockerspace and hostspace ( -v$FULL_PATH_OF_THE_TARGET_FOLDER:/home/dvdt/CK_REPOS/local/experiment) 
+#In this way it is possible to save the benchmarking outside the container and keep all the results
+RUN ck create_entry --path=/home/dvdt/CK_REPOS/local --data_uoa=experiment
+
 
 # Run the Object Detection TF-Python program
 # with the non-quantized SSD-MobileNet model 
 # on the first 50 images of the COCO 2017 validation dataset.
-CMD ["ck run program:object-detection-tf-py --env.CK_BATCH_COUNT=50"]
+# weigths can be: resnet50, quantized, non-quantized
+CMD ["ck run program:object-detection-tf-py --env.CK_BATCH_COUNT=50 --dep_add_tags.weights=ssd-mobilenet,non-quantized"]

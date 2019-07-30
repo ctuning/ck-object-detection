@@ -2,7 +2,7 @@
 import tensorflow as tf
 import tensorflow.contrib.tensorrt as trt
 
-def load_graph_tensorrti_custom(params):
+def load_graph_tensorrt_custom(params):
   graph_def = tf.compat.v1.GraphDef()
   with tf.gfile.GFile(params["FROZEN_GRAPH"], 'rb') as f:
     graph_def.ParseFromString(f.read())
@@ -27,12 +27,12 @@ def convert_from_tensorrt(tmp_output_dict ):
 
 
 
-def get_handles_to_tensorsRT():
+def get_handles_to_tensors_RT():
 
   graph = tf.get_default_graph()
   ops = graph.get_operations()
   all_tensor_names = {output.name for op in ops for output in op.outputs}
-  return_elements=["import/pred_sbbox/concat_2:0", "import/pred_mbbox/concat_2:0", "import/pred_lbbox/concat_2:0"])
+  return_elements=["import/pred_sbbox/concat_2:0", "import/pred_mbbox/concat_2:0", "import/pred_lbbox/concat_2:0"]
   tensor_dict = []
   for key in return_elements:
     if key in all_tensor_names:

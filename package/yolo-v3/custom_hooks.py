@@ -364,7 +364,7 @@ def ck_custom_postprocess_batch(image_files,iter_num, image_size,image_data,dumm
         bboxes= nms (bboxes, 0.45, method='nms')
         ck_custom_save_txt(image_files[iter_num*params["BATCH_SIZE"]+img], image_size[img],bboxes,category_index,params["DETECTIONS_OUT_DIR"])
         if not params["SAVE_IMAGES"]:
-            return
+            continue
         else:
             image = ck_custom_save_images(image_data[img],bboxes,category_index)
             image = Image.fromarray(image)

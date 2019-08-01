@@ -30,8 +30,6 @@ import ck_utils
 #taken from original code
 #TODO modify for batch. but want to test if all works before.
 def ck_custom_preprocess(image_files, iter_num,processed_image_ids,params):
-    if params["RESIZE_WIDTH_SIZE"] != params["RESIZE_HEIGHT_SIZE"]:
-        raise ValueError ("this model works with square images, and you provided different height and width")
     image_file = image_files[iter_num]
     image_id = ck_utils.filename_to_id(image_file, params["DATASET_TYPE"])
     processed_image_ids.append(image_id)
@@ -41,7 +39,7 @@ def ck_custom_preprocess(image_files, iter_num,processed_image_ids,params):
     original_image_size = orig_image.shape[:2]
     image = cv2.cvtColor(orig_image, cv2.COLOR_BGR2RGB).astype(np.float32)
 
-    ih, iw    = params["RESIZE_HEIGHT_SIZE"],params["RESIZE_WIDTH_SIZE"]   ##They are equal.
+    ih, iw    = 416,416   ##They are equal, and the model requires that size so must be hardcoded.
     h,  w, _  = image.shape
 
     scale = min(iw/w, ih/h)
@@ -213,7 +211,7 @@ def ck_custom_postprocess(image_files,iter_num, image_size,image_data,dummy, out
                                 pred_xywh[:, :2] + pred_xywh[:, 2:] * 0.5], axis=-1)
     # # (2) (xmin, ymin, xmax, ymax) -> (xmin_org, ymin_org, xmax_org, ymax_org)
     org_h, org_w = image_size
-    resize_dim = params["RESIZE_WIDTH_SIZE"],params["RESIZE_HEIGHT_SIZE"]   ##They are equal.
+    resize_dim = 416,416   ##They are equal.
     resize_ratio = min(resize_dim[0] / org_w, resize_dim[1] / org_h)
 
     dw = (resize_dim[0] - resize_ratio * org_w) / 2
@@ -259,8 +257,6 @@ def ck_custom_preprocess_batch(image_files, iter_num,processed_image_ids,params)
     batch_data = []
     batch_sizes = []
     orig_images = []
-    if params["RESIZE_WIDTH_SIZE"] != params["RESIZE_HEIGHT_SIZE"]:
-        raise ValueError ("this model works with square images, and you provided different height and width")
     for img in range(params["BATCH_SIZE"]):
         image_file = image_files[iter_num*params["BATCH_SIZE"]+img]
         image_id = ck_utils.filename_to_id(image_file, params["DATASET_TYPE"])
@@ -272,7 +268,7 @@ def ck_custom_preprocess_batch(image_files, iter_num,processed_image_ids,params)
         batch_sizes.append(orig_image.shape[:2])
         image = cv2.cvtColor(orig_image, cv2.COLOR_BGR2RGB).astype(np.float32)
  
-        ih, iw    = params["RESIZE_HEIGHT_SIZE"],params["RESIZE_WIDTH_SIZE"]   ##They are equal.
+        ih, iw    = 416,416   ##They are equal.
         h,  w, _  = image.shape
  
         scale = min(iw/w, ih/h)
@@ -330,7 +326,7 @@ def ck_custom_postprocess_batch(image_files,iter_num, image_size,image_data,dumm
                                     pred_xywh[:, :2] + pred_xywh[:, 2:] * 0.5], axis=-1)
         # # (2) (xmin, ymin, xmax, ymax) -> (xmin_org, ymin_org, xmax_org, ymax_org)
         org_h, org_w = image_size[img]
-        resize_dim = params["RESIZE_WIDTH_SIZE"],params["RESIZE_HEIGHT_SIZE"]   ##They are equal.
+        resize_dim = 416,416   ##They are equal.
         resize_ratio = min(resize_dim[0] / org_w, resize_dim[1] / org_h)
  
         dw = (resize_dim[0] - resize_ratio * org_w) / 2

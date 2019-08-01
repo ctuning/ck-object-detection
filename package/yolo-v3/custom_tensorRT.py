@@ -12,7 +12,9 @@ def load_graph_tensorrt_custom(params):
         outputs=["pred_sbbox/concat_2:0", "pred_mbbox/concat_2:0", "pred_lbbox/concat_2:0"],
         max_batch_size=params["BATCH_SIZE"],
         max_workspace_size_bytes=4000000000,
-        precision_mode=params["TENSORRT_PRECISION"])
+        is_dynamic_op=True if params["TENSORRT_DYNAMIC"]==1 else False,
+        precision_mode=params["TENSORRT_PRECISION"]
+        )
   tf.import_graph_def(
         trt_graph,
         return_elements=["pred_sbbox/concat_2:0", "pred_mbbox/concat_2:0", "pred_lbbox/concat_2:0"])

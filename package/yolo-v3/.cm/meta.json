@@ -5,6 +5,8 @@
     "install_env": {
       "DATASET_TYPE": "coco",
       "FROZEN_GRAPH": "frozen_inference_graph.pb",
+      "DEFAULT_WIDTH": "416",
+      "DEFAULT_HEIGHT": "416",
       "LABELMAP_FILE": "mscoco_label_map.pbtxt",
       "MODEL_NAME": "yolo",
       "PACKAGE_NAME": "prova_coco.tar.gz",

@@ -5,6 +5,8 @@
     "install_env": {
       "DATASET_TYPE": "coco",
       "FROZEN_GRAPH": "frozen_inference_graph.pb",
+      "DEFAULT_WIDTH": "600",
+      "DEFAULT_HEIGHT": "1024",
       "LABELMAP_FILE": "mscoco_label_map.pbtxt",
       "MODEL_NAME": "Faster RCNN inception resnetv2 lowproposal",
       "PACKAGE_NAME": "faster_rcnn_inception_resnet_v2_atrous_lowproposals_coco_2018_01_28.tar.gz",

@@ -5,6 +5,8 @@
     "install_env": {
       "DATASET_TYPE": "coco",
       "FROZEN_GRAPH": "frozen_inference_graph.pb",
+      "DEFAULT_WIDTH": "1024",
+      "DEFAULT_HEIGHT": "600",
       "LABELMAP_FILE": "mscoco_label_map.pbtxt",
       "MODEL_NAME": "faster rcnn inception v2",
       "PACKAGE_NAME": "faster_rcnn_inception_v2_coco_2018_01_28.tar.gz",

@@ -9,14 +9,7 @@
     "default": {
       "ignore_return_code": "no",
       "run_time": {
-        "fine_grain_timer_file": "tmp-ck-timer.json",
-        "post_process_via_ck": {
-          "script_name": "postprocess"
-        },
-        "run_cmd_main": "$<<CK_ENV_COMPILER_PYTHON_FILE>>$ ../detect.py",
-        "run_output_files": [
-          "tmp-ck-timer.json"
-        ]
+        "run_cmd_main": "$<<CK_ENV_COMPILER_PYTHON_FILE>>$ ../detect.py"
       }
     }
   },

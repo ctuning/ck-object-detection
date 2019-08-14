@@ -60,13 +60,22 @@ params["SKIP_DETECTION"] = os.getenv('CK_SKIP_DETECTION') == 'YES'
 params["IMAGE_LIST_FILE"] = 'processed_images_id.json'
 params["TIMER_JSON"] = 'tmp-ck-timer.json'
 params["ENV_JSON"] = 'env.json'
-params["PROFILE"] = 0
-params["SCENARIO"]= ''
-params["NUM_THREADS"]= 1
-params["TIME"] = 0
-params["QPS"] = 0
-params["ACCURACY"] = True
 
+### params from mlperf
+#profile gives input/output tensor, plus backend and dataset.
+#these values will be stored in a dict, so in the functions performing the work there will be 2 dict: the params with all the other values, and the config with the values taken from the profile
+params["PROFILE"] = os.getenv('CK_PROFILE', 'default_tf_object_det_zoo') 
+params["SCENARIO"]= os.getenv('CK_SCENARIO','Offline')
+params["NUM_THREADS"]= int(os.getenv('CK_NUM_THREADS','1'))
+params["TIME"] = int(os.getenv('CK_TIME','60'))
+params["QPS"] = int(os.getenv('CK_QPS','100'))
+params["ACCURACY"] = os.getenv('CK_ACCURACY','YES') == 'YES'
+params["CACHE"] = int(os.getenv('CK_CACHE',0))
+params["QUERIES_SINGLE"] = int(os.getenv('CK_QUERIES_SINGLE',1024))
+params["QUERIES_MULTI"] = int(os.getenv('CK_QUERIES_MULTI',24576))
+params["QUERIES_OFFLINE"] = int(os.getenv('CK_QUERIES_OFFLINE',24576))
+params["MAX_LATENCY"] = (os.getenv('CK_MAX_LATENCY','0.1'))
+#params[""] = os.getenv('CK_')
 
 
 
@@ -150,7 +159,7 @@ def save_detection_txt(image_file, image_size, output_dict, category_index, para
         class_name = category_index[class_id]['name']
       y1, x1, y2, x2 = output_dict['detection_boxes'][i]
       score = output_dict['detection_scores'][i]
-      f.write('{:.2f} {:.2f} {:.2f} {:.2f} {:.3f} {:d} {}\n'\
+      f.write('{:.15f} {:.15f} {:.15f} {:.15f} {:.15f} {:d} {}\n'\
         .format(x1*im_width, y1*im_height, x2*im_width, y2*im_height, score, class_id, class_name))
 
 
@@ -221,7 +230,7 @@ def postprocess_batch(image_files, iter_num, image_size,dummy, image_data,output
 
 
 
-def detect(category_index, func_defs):
+def detect(category_index, func_defs,feeds,ids,sizes,results):
   # Prepare TF config options
   tf_config = make_tf_config()
 
@@ -234,7 +243,7 @@ def detect(category_index, func_defs):
   # Load processing image filenames
 
   print(params["IMAGES_DIR"], params["BATCH_COUNT"]*params["BATCH_SIZE"], params["SKIP_IMAGES"])
-  image_files = ck_utils.load_image_list(params["IMAGES_DIR"], params["BATCH_COUNT"]*params["BATCH_SIZE"], params["SKIP_IMAGES"])
+  image_files =[]# ck_utils.load_image_list(params["IMAGES_DIR"], params["BATCH_COUNT"]*params["BATCH_SIZE"], params["SKIP_IMAGES"])
 
   with tf.compat.v1.Graph().as_default(), tf.compat.v1.Session(config=tf_config) as sess:
     setup_time_begin = time.time()
@@ -258,21 +267,46 @@ def detect(category_index, func_defs):
     detect_time_total = 0
     images_processed = 0
     processed_image_ids = []
-    loop_limit = len(image_files) if (params["ENABLE_BATCH"]) == 0 else params["BATCH_COUNT"]  #defines loop boundary, that is different if batch or non batch processing are involved. the structure of the loop is however the same.
+    loop_limit =params["BATCH_SIZE"]* params["BATCH_COUNT"] if (params["BATCH_SIZE"]) == 1 else params["BATCH_COUNT"]  #defines loop boundary, that is different if batch or non batch processing are involved. the structure of the loop is however the same.
     for iter_num in range (loop_limit):
- 
+      image_data = []
+      image_size = []
+      image_data = []
+      for img in range (params["BATCH_SIZE"]):
+          name = "{:012d}".format(ids[iter_num][img])
+          image_files.append(name+'.jpg') 
+          image_data = feeds[iter_num]['image_tensor:0']
+          processed_image_ids.append(ids[iter_num][img])
+          image_size.append( (sizes[iter_num][img][1],sizes[iter_num][img][0]))
+
+
+
+
+
       load_time_begin = time.time()
+      if params["BATCH_SIZE"] == 1: #overrides if batch size is 1
+          image_size = (sizes[iter_num][1],sizes[iter_num][0])
       # THIRD HOOK: preprocess
-      image_data,processed_image_ids,image_size,original_image = func_defs["preprocess"](image_files,iter_num,processed_image_ids,params)
-      
+      #image_data,processed_image_ids,image_size,original_image = func_defs["preprocess"](image_files,iter_num,processed_image_ids,params)
+#      image_data = feeds[iter_num]['image_tensor:0']
+#      processed_image_ids.append(ids[iter_num])
+#      image_size = (sizes[iter_num][1],sizes[iter_num][0])
+      original_image = []
       load_time = time.time() - load_time_begin
       load_time_total += load_time
       # Detect image: common
       detect_time_begin = time.time()
-      feed_dict = {input_tensor: image_data}
-      output_dict = sess.run(tensor_dict, feed_dict)
+      feed_dict =feeds[iter_num]   # {input_tensor: image_data}
+      #output_dict = sess.run(tensor_dict, feed_dict)
+      tmp_output_dict = results[iter_num] 
       #FOURTH HOOK: convert from tensorRT to normal dict
-      output_dict =func_defs["out_conv"](output_dict)
+      output_dict = {} #func_defs["out_conv"](output_dict)
+#debug from output as array
+      output_dict['num_detections']    = tmp_output_dict[0] 
+      output_dict['detection_classes'] = tmp_output_dict[3]
+      output_dict['detection_boxes']   = tmp_output_dict[1]
+      output_dict['detection_scores']  = tmp_output_dict[2]
+
       
       detect_time = time.time() - detect_time_begin
       # Exclude first image from averaging
@@ -283,8 +317,8 @@ def detect(category_index, func_defs):
       # FIFTH hook: process results
       func_defs["postprocess"](image_files,iter_num, image_size,original_image,image_data,output_dict, category_index, params)
 
-      if params["FULL_REPORT"]:
-        print('Detected in {:.4f}s'.format(detect_time))
+#      if params["FULL_REPORT"]:
+#        print('Detected in {:.4f}s'.format(detect_time))
 
   # Save processed images ids list to be able to run
   # evaluation without repeating detections (CK_SKIP_DETECTION=YES)
@@ -467,56 +501,68 @@ def init(params):
 
 
 def main(_):
-  # Print settings
-  mlperf_process(params)
-  print("Model frozen graph: " + params["FROZEN_GRAPH"])
-  print("Model label map file: " + params["LABELMAP_FILE"])
-  print("Model is for dataset: " + params["MODEL_DATASET_TYPE"])
-
-  print("Dataset images: " + params["IMAGES_DIR"])
-  print("Dataset annotations: " + params["ANNOTATIONS_PATH"])
-  print("Dataset type: " + params["DATASET_TYPE"])
-
-  print('Image count: {}'.format(params["BATCH_COUNT"]*params["BATCH_SIZE"]))
-  print("Metric type: " + params["METRIC_TYPE"])
-  print('Results directory: {}'.format(params["RESULTS_OUT_DIR"]))
-  print("Temporary annotations directory: " + params["ANNOTATIONS_OUT_DIR"])
-  print("Detections directory: " + params["DETECTIONS_OUT_DIR"])
-  print("Result images directory: " + params["IMAGES_OUT_DIR"])
-  print('Save result images: {}'.format(params["SAVE_IMAGES"]))
-
-  # Create category index
-  category_index = label_map_util.create_category_index_from_labelmap(params["LABELMAP_FILE"], use_display_name=True)
-  categories_list = category_index.values() # array: [{"id": 88, "name": "teddy bear"}, ...]
-  print('Categories: {}'.format(categories_list))
-
- # Init function: set the correct imports and function pointers.
-  func_defs = init(params)
-
-  # Run detection if needed
-  ck_utils.print_header('Process images')
-  if params["SKIP_DETECTION"]:
-    print('\nSkip detection, evaluate previous results')
-  else:
-    processed_image_ids = detect(category_index,func_defs)
-  
-  ENV={}
-  ENV['PYTHONPATH'] = os.getenv('PYTHONPATH')
-  ENV['LABELMAP_FILE'] = params["LABELMAP_FILE"]
-  ENV['MODEL_DATASET_TYPE'] = params["MODEL_DATASET_TYPE"]
-  ENV['DATASET_TYPE'] = params["DATASET_TYPE"]
-  ENV['ANNOTATIONS_PATH'] = params["ANNOTATIONS_PATH"]
-  ENV['METRIC_TYPE'] = params["METRIC_TYPE"]
-  ENV['IMAGES_OUT_DIR'] = params["IMAGES_OUT_DIR"]
-  ENV['DETECTIONS_OUT_DIR'] = params["DETECTIONS_OUT_DIR"]
-  ENV['ANNOTATIONS_OUT_DIR'] = params["ANNOTATIONS_OUT_DIR"]
-  ENV['RESULTS_OUT_DIR'] = params["RESULTS_OUT_DIR"]
-  ENV['FULL_REPORT'] = params["FULL_REPORT"]
-  ENV['IMAGE_LIST_FILE'] = params["IMAGE_LIST_FILE"]
-  ENV['TIMER_JSON'] = params["TIMER_JSON"]
-
-  with open(params["ENV_JSON"], 'w') as o:
-    json.dump(ENV, o, indent=2, sort_keys=True)
+  # return values will not be needed in the final program version.
+  feeds,ids,sizes,results = mlperf_process(params)
+  #######################################################################################
+  #######################################################################################
+  ################       DEBUGGING PART OF THE PROGRAM FROM HERE ON      ################
+  #######################################################################################
+  #######################################################################################
+  """
+  The old detect.py is no more needed in the mlperf wrapper.
+  I will not delete it for now since is useful for debugging (i can inject the partial or total results from mlperf application in the old program and see how different processing have same/different results and investigate why
+  However, once the application is finished it will be deactivated.
+  The actual processing is done in the lib_entry.py file in the mlperf-inference-dividiti fork.
+  """
+#  print("Model frozen graph: " + params["FROZEN_GRAPH"])
+#  print("Model label map file: " + params["LABELMAP_FILE"])
+#  print("Model is for dataset: " + params["MODEL_DATASET_TYPE"])
+#
+#  print("Dataset images: " + params["IMAGES_DIR"])
+#  print("Dataset annotations: " + params["ANNOTATIONS_PATH"])
+#  print("Dataset type: " + params["DATASET_TYPE"])
+#
+#  print('Image count: {}'.format(params["BATCH_COUNT"]*params["BATCH_SIZE"]))
+#  print("Metric type: " + params["METRIC_TYPE"])
+#  print('Results directory: {}'.format(params["RESULTS_OUT_DIR"]))
+#  print("Temporary annotations directory: " + params["ANNOTATIONS_OUT_DIR"])
+#  print("Detections directory: " + params["DETECTIONS_OUT_DIR"])
+#  print("Result images directory: " + params["IMAGES_OUT_DIR"])
+#  print('Save result images: {}'.format(params["SAVE_IMAGES"]))
+#
+#  # Create category index
+#  category_index = label_map_util.create_category_index_from_labelmap(params["LABELMAP_FILE"], use_display_name=True)
+#  categories_list = category_index.values() # array: [{"id": 88, "name": "teddy bear"}, ...]
+#  print('Categories: {}'.format(categories_list))
+# 
+# # Init function: set the correct imports and function pointers.
+#  func_defs = init(params)
+# 
+#  # Run detection if needed
+#  ck_utils.print_header('Process images')
+#  if params["SKIP_DETECTION"]:
+#    print('\nSkip detection, evaluate previous results')
+#  else:
+#    processed_image_ids = detect(category_index,func_defs,feeds,ids,sizes,results)
+#  
+# 
+#  ENV={}
+#  ENV['PYTHONPATH'] = os.getenv('PYTHONPATH')
+#  ENV['LABELMAP_FILE'] = params["LABELMAP_FILE"]
+#  ENV['MODEL_DATASET_TYPE'] = params["MODEL_DATASET_TYPE"]
+#  ENV['DATASET_TYPE'] = params["DATASET_TYPE"]
+#  ENV['ANNOTATIONS_PATH'] = params["ANNOTATIONS_PATH"]
+#  ENV['METRIC_TYPE'] = params["METRIC_TYPE"]
+#  ENV['IMAGES_OUT_DIR'] = params["IMAGES_OUT_DIR"]
+#  ENV['DETECTIONS_OUT_DIR'] = params["DETECTIONS_OUT_DIR"]
+#  ENV['ANNOTATIONS_OUT_DIR'] = params["ANNOTATIONS_OUT_DIR"]
+#  ENV['RESULTS_OUT_DIR'] = params["RESULTS_OUT_DIR"]
+#  ENV['FULL_REPORT'] = params["FULL_REPORT"]
+#  ENV['IMAGE_LIST_FILE'] = params["IMAGE_LIST_FILE"]
+#  ENV['TIMER_JSON'] = params["TIMER_JSON"]
+# 
+#  with open(params["ENV_JSON"], 'w') as o:
+#    json.dump(ENV, o, indent=2, sort_keys=True)
 
 if __name__ == '__main__':
   tf.compat.v1.app.run()

@@ -502,7 +502,8 @@ def init(params):
 
 def main(_):
   # return values will not be needed in the final program version.
-  feeds,ids,sizes,results = mlperf_process(params)
+ # feeds,ids,sizes,results =
+  mlperf_process(params)
   #######################################################################################
   #######################################################################################
   ################       DEBUGGING PART OF THE PROGRAM FROM HERE ON      ################

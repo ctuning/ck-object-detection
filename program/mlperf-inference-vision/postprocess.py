@@ -9,20 +9,18 @@
 import os
 import json
 
-MLPERF_LOG_TRACE_JSON    = 'mlperf_log_trace.json'
 MLPERF_LOG_ACCURACY_JSON = 'mlperf_log_accuracy.json'
 MLPERF_LOG_DETAIL_TXT    = 'mlperf_log_detail.txt'
 MLPERF_LOG_SUMMARY_TXT   = 'mlperf_log_summary.txt'
-
-TEST_SCENARIO_OFFLINE_JSON       = 'TestScenario.Offline.json'
-TEST_SCENARIO_SINGLESTREAM_JSON  = 'TestScenario.SingleStream.json'
-TEST_SCENARIO_MULTISTREAM_JSON   = 'TestScenario.MultiStream.json'
-TEST_SCENARIO_SERVER_JSON        = 'TestScenario.Server.json'
+MLPERF_LOG_TRACE_JSON    = 'mlperf_log_trace.json'
+OUTPUT_JSON              = 'output.json'
 
 def ck_postprocess(i):
   print('\n--------------------------------')
 
   save_dict = {}
+
+  # Save logs.
   save_dict['mlperf_log'] = {}
   mlperf_log_dict = save_dict['mlperf_log']
 
@@ -37,6 +35,20 @@ def ck_postprocess(i):
 
   with open(MLPERF_LOG_DETAIL_TXT, 'r') as detail_file:
     mlperf_log_dict['detail'] = detail_file.readlines()
+
+  # Read output.
+  with open(OUTPUT_JSON, 'r') as output_file:
+    save_dict['output'] = json.load(output_file)
+
+  # Only save results for those scenarios that appear in the output
+  # to ensure that only the latest results get recorded.
+  save_dict['scenarios'] = {}
+  scenarios_dict = save_dict['scenarios']
+
+  for scenario in [ 'SingleStream', 'MultiStream', 'Server', 'Offline' ]:
+    if save_dict['output'].get('TestScenario.%s' % scenario, {}) != {}:
+      with open('TestScenario.%s.json' % scenario, 'r') as scenario_file:
+        scenarios_dict[scenario] = json.load(scenario_file)
 
   with open('tmp-ck-timer.json', 'w') as save_file:
     json.dump(save_dict, save_file, indent=2, sort_keys=True)

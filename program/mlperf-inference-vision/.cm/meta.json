@@ -1,6 +1,6 @@
 {
   "backup_data_uid": "5ae4fb19fc9c1f1a",
-  "data_name": "ck-mlperf-tf-object-detection",
+  "data_name": "mlperf-inference-vision",
   "no_compile": "yes",
   "no_target_file": "yes",
   "process_in_tmp": "yes",
@@ -30,7 +30,7 @@
     },
     "lib-python-loadgen": {
       "local": "yes",
-      "name": "MlPerf Loadgen library",
+      "name": "Python MLPerf LoadGen library",
       "sort": 46,
       "tags": "lib,loadgen,python-package"
     },
@@ -48,7 +48,7 @@
     },
     "lib-python-opencv": {
       "local": "yes",
-      "name": "Python opencv library",
+      "name": "Python OpenCV library",
       "sort": 50,
       "tags": "lib,python-package,cv2"
     },

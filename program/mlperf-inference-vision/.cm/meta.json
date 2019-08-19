@@ -90,6 +90,7 @@
   },
   "run_vars": {
     "CK_BATCH_COUNT": 1,
+    "CK_MAX_LATENCY": 0.1,
     "CK_METRIC_TYPE": "",
     "CK_SAVE_IMAGES": "NO",
     "CK_SILENT_MODE": "NO",

@@ -51,8 +51,11 @@ def ck_postprocess(i):
   for scenario in [ 'SingleStream', 'MultiStream', 'Server', 'Offline' ]:
     scenario_json = 'TestScenario.%s.json' % scenario
     scenario_key  = 'TestScenario.%s' % scenario
-    # NB: Scenario 'Server' gives key 'TestScenario.Server-<max latency>'.
-    if scenario == 'Server': scenario_key += '-%s' % env.get('CK_MAX_LATENCY', 0.1)
+    # Scenario 'Server' gives key 'TestScenario.Server-<max latency>'.
+    # NB: Must use the same way of formatting as in python/main.py ('{}-{}').
+    if scenario == 'Server':
+        max_latency = float(env.get('CK_MAX_LATENCY', '0.1'))
+        scenario_key = '{}-{}'.format(scenario_key, max_latency)
     scenario_dict = save_dict['output'].get(scenario_key, {})
     if scenario_dict != {}:
       with open(scenario_json, 'r') as scenario_file:

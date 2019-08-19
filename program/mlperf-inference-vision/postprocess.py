@@ -47,6 +47,7 @@ def ck_postprocess(i):
   scenarios_dict = save_dict['scenarios']
 
   for scenario in [ 'SingleStream', 'MultiStream', 'Server', 'Offline' ]:
+    # FIXME: Scenario 'Offline' gives key 'TestScenario.Offline-0.1'.
     scenario_dict = save_dict['output'].get('TestScenario.%s' % scenario, {})
     if scenario_dict != {}:
       with open('TestScenario.%s.json' % scenario, 'r') as scenario_file:

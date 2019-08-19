@@ -26,7 +26,7 @@
       "local": "yes",
       "name": "MLPerf Inference source",
       "sort": 1,
-      "tags": "mlperf,inference,source,dividiti.ck_version"
+      "tags": "mlperf,inference,source,dividiti.vision_with_ck"
     },
     "lib-python-loadgen": {
       "local": "yes",

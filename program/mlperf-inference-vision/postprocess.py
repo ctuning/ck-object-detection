@@ -19,6 +19,7 @@ def ck_postprocess(i):
   print('\n--------------------------------')
 
   save_dict = {}
+  save_dict['execution_time'] = 0.0
 
   # Save logs.
   save_dict['mlperf_log'] = {}
@@ -46,9 +47,11 @@ def ck_postprocess(i):
   scenarios_dict = save_dict['scenarios']
 
   for scenario in [ 'SingleStream', 'MultiStream', 'Server', 'Offline' ]:
-    if save_dict['output'].get('TestScenario.%s' % scenario, {}) != {}:
+    scenario_dict = save_dict['output'].get('TestScenario.%s' % scenario, {})
+    if scenario_dict != {}:
       with open('TestScenario.%s.json' % scenario, 'r') as scenario_file:
         scenarios_dict[scenario] = json.load(scenario_file)
+        save_dict['execution_time'] += scenario_dict['took']
 
   with open('tmp-ck-timer.json', 'w') as save_file:
     json.dump(save_dict, save_file, indent=2, sort_keys=True)

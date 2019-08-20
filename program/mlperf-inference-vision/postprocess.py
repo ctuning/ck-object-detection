@@ -18,6 +18,8 @@ OUTPUT_JSON              = 'output.json'
 def ck_postprocess(i):
   print('\n--------------------------------')
 
+  env = i['env']
+
   save_dict = {}
   save_dict['execution_time'] = 0.0
 
@@ -47,10 +49,16 @@ def ck_postprocess(i):
   scenarios_dict = save_dict['scenarios']
 
   for scenario in [ 'SingleStream', 'MultiStream', 'Server', 'Offline' ]:
-    # FIXME: Scenario 'Offline' gives key 'TestScenario.Offline-0.1'.
-    scenario_dict = save_dict['output'].get('TestScenario.%s' % scenario, {})
+    scenario_json = 'TestScenario.%s.json' % scenario
+    scenario_key  = 'TestScenario.%s' % scenario
+    # Scenario 'Server' gives key 'TestScenario.Server-<max latency>'.
+    # NB: Must use the same way of formatting as in python/main.py ('{}-{}').
+    if scenario == 'Server':
+        max_latency = float(env.get('CK_MAX_LATENCY', '0.1'))
+        scenario_key = '{}-{}'.format(scenario_key, max_latency)
+    scenario_dict = save_dict['output'].get(scenario_key, {})
     if scenario_dict != {}:
-      with open('TestScenario.%s.json' % scenario, 'r') as scenario_file:
+      with open(scenario_json, 'r') as scenario_file:
         scenarios_dict[scenario] = json.load(scenario_file)
         save_dict['execution_time'] += scenario_dict['took']
 

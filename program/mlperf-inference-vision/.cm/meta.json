@@ -1,6 +1,6 @@
 {
   "backup_data_uid": "5ae4fb19fc9c1f1a",
-  "data_name": "ck-mlperf-tf-object-detection",
+  "data_name": "mlperf-inference-vision",
   "no_compile": "yes",
   "no_target_file": "yes",
   "process_in_tmp": "yes",
@@ -9,7 +9,11 @@
     "default": {
       "ignore_return_code": "no",
       "run_time": {
-        "run_cmd_main": "$<<CK_ENV_COMPILER_PYTHON_FILE>>$ ../detect.py"
+        "run_cmd_main": "$<<CK_ENV_COMPILER_PYTHON_FILE>>$ ../detect.py",
+        "fine_grain_timer_file": "tmp-ck-timer.json",
+        "post_process_via_ck": {
+          "script_name": "postprocess"
+        }
       }
     }
   },
@@ -26,11 +30,11 @@
       "local": "yes",
       "name": "MLPerf Inference source",
       "sort": 1,
-      "tags": "mlperf,inference,source,dividiti.ck_version"
+      "tags": "mlperf,inference,source,dividiti.vision_with_ck"
     },
     "lib-python-loadgen": {
       "local": "yes",
-      "name": "MlPerf Loadgen library",
+      "name": "Python MLPerf LoadGen library",
       "sort": 46,
       "tags": "lib,loadgen,python-package"
     },
@@ -48,7 +52,7 @@
     },
     "lib-python-opencv": {
       "local": "yes",
-      "name": "Python opencv library",
+      "name": "Python OpenCV library",
       "sort": 50,
       "tags": "lib,python-package,cv2"
     },

@@ -1,10 +1,10 @@
 {
-  "backup_data_uid": "db641a3b59d44259",
+  "backup_data_uid": "f5fd249528bd0192",
   "backup_module_uid": "88eef0cd8c43b68a",
   "backup_module_uoa": "docker",
   "control": {
     "engine": "CK",
-    "iso_datetime": "2019-06-19T10:08:17.543830",
+    "iso_datetime": "2019-07-01T09:44:28.404621",
     "version": [
       "1",
       "9",
@@ -12,5 +12,5 @@
       "1"
     ]
   },
-  "data_name": "object-detection-tf-py.tf-src.debian-9"
+  "data_name": "object-detection-tf-py.tensorrt.ubuntu-18.04"
 }

@@ -12,5 +12,5 @@
       "1"
     ]
   },
-  "data_name": "object-detection-tf-py.tf-prebuild.debian-9"
+  "data_name": "object-detection-tf-py.tf-prebuild.ubuntu-18.04"
 }

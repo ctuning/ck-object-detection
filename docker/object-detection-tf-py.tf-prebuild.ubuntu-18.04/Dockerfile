@@ -1,4 +1,4 @@
-FROM debian:9
+FROM ubuntu:18.04
 
 LABEL maintainer="Anton Lokhmotov <anton@dividiti.com>"
 
@@ -12,6 +12,7 @@ ENTRYPOINT ["/bin/bash", "-c"]
 # CK needs: git, wget, zip.
 # TF needs: curl.
 # TensorFlow Object Detection API needs ProtoBuf 3.0 which needs CMake.
+# openCV needs libsm6,libxext6 and libxrender-dev
 RUN apt update -y\
  && apt install -y apt-utils\
  && apt upgrade -y\
@@ -21,11 +22,13 @@ RUN apt update -y\
  cmake\
  python3 python3-pip\
  vim\
+ libsm6 libxext6 libxrender-dev\
  && apt clean
 #not needed, but allows to share with tf-src-cpu
 RUN ln -s /usr/bin/python3 /usr/bin/python 
 # Create non-root user.
-RUN useradd -u 2000 --create-home --user-group --shell /bin/bash dvdt
+RUN groupadd -g 1500 dvdt
+RUN useradd -u 2000 --create-home -g 1500 --shell /bin/bash dvdt
 USER dvdt:dvdt
 WORKDIR /home/dvdt
 
@@ -46,9 +49,11 @@ RUN cd ${CK_ROOT} \
  && ${CK_PYTHON} setup.py install --user \
  && ${CK_PYTHON} -c "import ck.kernel as ck; print ('Collective Knowledge v%s' % ck.__version__)"
 
+
+RUN ck pull repo:ck-tensorflow --url=https://github.com/me2x/ck-tensorflow.git
 # Pull CK repositories (including ck-env, ck-autotuning and ck-tensorflow).
-# NB: To share more space, we only pull repo:ck-mlperf here, as it's what other containers use.
-RUN ck pull repo:ck-mlperf
+RUN ck pull repo:ck-mlperf \
+&& ck pull repo:ck-object-detection 
 
 # Use generic Linux settings with dummy frequency setting scripts.
 RUN ck detect platform.os --platform_init_uoa=generic-linux-dummy
@@ -67,6 +72,7 @@ RUN ck install package --tags=lib,python-package,scipy --force_version=1.2.1
 RUN ck install package --tags=lib,python-package,pillow
 RUN ck install package --tags=lib,python-package,matplotlib
 RUN ck install package --tags=lib,python-package,cython
+RUN ck install package --tags=lib,python-package,cv2
 RUN ck show env --tags=python-package
 
 RUN ${CK_PYTHON} -m pip install gast --user
@@ -96,8 +102,18 @@ RUN ck install package:lib-tensorflow-1.14.0-cpu
 # Download the SSD-ResNet50 TF model.
 RUN ck install package:tensorflowmodel-object-detection-ssd-resnet50-v1-fpn-sbp-640x640-coco
 # Download the SSD-MobileNet TF models (non-quantized and quantized).
-RUN ck install package --tags=model,tf,object-detection,mlperf,ssd-mobilenet,non-quantized
+#RUN ck install package --tags=model,tf,object-detection,mlperf,ssd-mobilenet,non-quantized
 RUN ck install package --tags=model,tf,object-detection,mlperf,ssd-mobilenet,quantized,finetuned
+RUN ck install package:ssd-mobilenetv1-fpn-shared-box-predictor \
+&&  ck install package:faster-rcnn_inception-resnet_v2-atrous-lowproposal \
+&&  ck install package:faster-rcnn-nas-lowproposal                        \
+&&  ck install package:faster-rcnn-resnet50-lowproposal                   \
+&&  ck install package:faster-rcnn-nas                                    \ 
+&&  ck install package:faster-rcnn-resnet101-lowproposal                  \
+&&  ck install package --tags=model,tf,object-detection,ssd,inceptionv2   \
+&&  ck install package --tags=model,tf,object-detection,ssdlite           \
+&&  ck install package --tags=model,tf,object-detection,rcnn,inceptionv2  \
+&&  ck install package --tags=model,tf,object-detection,yolo      
 
 #Last step
 #change dependencies to support "external" benchmarking. 
@@ -107,10 +123,10 @@ RUN ck install package --tags=model,tf,object-detection,mlperf,ssd-mobilenet,qua
 #However, the user cannot read/write by default the dvdt userspace. 
 #For this reason we have to change the permission to the dvdt userspace.
 #note that this step allows to have the result, on the mounted volume, as if they were created by the user, after the end of the container run.
-RUN chmod -R 777 ~/.local
-RUN chmod -R 777 ~/CK
-RUN chmod -R 777 ~/CK_REPOS
-RUN chmod -R 777 ~/CK_TOOLS
+RUN chmod -R 755 ~/.local
+#RUN chmod -R 777 ~/CK
+RUN chmod -R 775 ~/CK_REPOS
+#RUN chmod -R 777 ~/CK_TOOLS
 
 
 #entry for the experiment folder, that will be mounted as a shared volume between dockerspace and hostspace ( -v$FULL_PATH_OF_THE_TARGET_FOLDER:/home/dvdt/CK_REPOS/local/experiment) 

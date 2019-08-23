@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/tensorrt:19.06-py3
+FROM nvcr.io/nvidia/tensorrt:19.07-py3
 
 LABEL maintainer="Anton Lokhmotov <anton@dividiti.com>"
 
@@ -12,6 +12,7 @@ ENTRYPOINT ["/bin/bash", "-c"]
 # CK needs: git, wget, zip.
 # TF needs: curl.
 # TensorFlow Object Detection API needs ProtoBuf 3.0 which needs CMake.
+# openCV needs libsm6,libxext6 and libxrender-dev
 RUN apt update -y\
  && apt install -y apt-utils\
  && apt upgrade -y\
@@ -21,6 +22,7 @@ RUN apt update -y\
  cmake\
  python3 python3-pip\
  vim\
+ libsm6 libxext6 libxrender-dev\
  && apt clean
 
 # Create non-root user.
@@ -40,8 +42,7 @@ ENV CK_ROOT=/home/dvdt/CK \
     GIT_USER="dividiti" \
     GIT_EMAIL="info@dividiti.com" \
     LANG=C.UTF-8
-#attempt with umask, not sure is gonna work since it is somehow ignored imho when creates .local etc (I mean, default is 022, but still local comes with 077)
-RUN umask 002 && mkdir -p ${CK_ROOT} ${CK_REPOS} ${CK_TOOLS} 
+RUN mkdir -p ${CK_ROOT} ${CK_REPOS} ${CK_TOOLS}
 RUN git config --global user.name ${GIT_USER} && git config --global user.email ${GIT_EMAIL}
 RUN git clone https://github.com/ctuning/ck.git ${CK_ROOT}
 RUN cd ${CK_ROOT} \
@@ -50,10 +51,9 @@ RUN cd ${CK_ROOT} \
 
 
 RUN ck pull repo:ck-tensorflow --url=https://github.com/me2x/ck-tensorflow.git
-RUN cd $CK_REPOS/ck-tensorflow && git checkout -b tf14_src origin/tf14_src && cd
 # Pull CK repositories (including ck-env, ck-autotuning and ck-tensorflow).
-RUN ck pull repo:ck-mlperf
-
+RUN ck pull repo:ck-mlperf \
+&& ck pull repo:ck-object-detection 
 # Use generic Linux settings with dummy frequency setting scripts.
 RUN ck detect platform.os --platform_init_uoa=generic-linux-dummy
 
@@ -71,6 +71,7 @@ RUN ck install package --tags=lib,python-package,scipy --force_version=1.2.1
 RUN ck install package --tags=lib,python-package,pillow
 RUN ck install package --tags=lib,python-package,matplotlib
 RUN ck install package --tags=lib,python-package,cython
+RUN ck install package --tags=lib,python-package,cv2
 RUN ck show env --tags=python-package
 
 RUN ${CK_PYTHON} -m pip install gast --user
@@ -112,8 +113,18 @@ RUN ck detect soft --tags=cmake --full_path=/usr/local/bin/cmake
 # Download the SSD-ResNet50 TF model.
 RUN ck install package:tensorflowmodel-object-detection-ssd-resnet50-v1-fpn-sbp-640x640-coco
 # Download the SSD-MobileNet TF models (non-quantized and quantized).
-RUN ck install package --tags=model,tf,object-detection,mlperf,ssd-mobilenet,non-quantized
+#RUN ck install package --tags=model,tf,object-detection,mlperf,ssd-mobilenet,non-quantized
 RUN ck install package --tags=model,tf,object-detection,mlperf,ssd-mobilenet,quantized,finetuned
+RUN ck install package:ssd-mobilenetv1-fpn-shared-box-predictor \
+&&  ck install package:faster-rcnn_inception-resnet_v2-atrous-lowproposal \
+&&  ck install package:faster-rcnn-nas-lowproposal                        \
+&&  ck install package:faster-rcnn-resnet50-lowproposal                   \
+&&  ck install package:faster-rcnn-nas                                    \ 
+&&  ck install package:faster-rcnn-resnet101-lowproposal                  \
+&&  ck install package --tags=model,tf,object-detection,ssd,inceptionv2   \
+&&  ck install package --tags=model,tf,object-detection,ssdlite           \
+&&  ck install package --tags=model,tf,object-detection,rcnn,inceptionv2  \
+&&  ck install package --tags=model,tf,object-detection,yolo      
 
 #Last step
 #change dependencies to support "external" benchmarking. 
@@ -138,4 +149,4 @@ RUN ck create_entry --path=/home/dvdt/CK_REPOS/local --data_uoa=experiment
 # with the non-quantized SSD-MobileNet model 
 # on the first 50 images of the COCO 2017 validation dataset.
 # weigths can be: resnet50, quantized, non-quantized
-CMD ["ck run program:object-detection-tf-py --env.CK_BATCH_COUNT=50 --dep_add_tags.weights=non-quantized"]
+CMD ["ck run program:object-detection-tf-py --env.CK_BATCH_COUNT=50 --dep_add_tags.weights=ssd-mobilenet,non-quantized"]

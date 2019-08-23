@@ -12,6 +12,7 @@ ENTRYPOINT ["/bin/bash", "-c"]
 # CK needs: git, wget, zip.
 # TF needs: curl.
 # TensorFlow Object Detection API needs ProtoBuf 3.0 which needs CMake.
+# openCV needs libsm6,libxext6 and libxrender-dev
 RUN apt update -y\
  && apt install -y apt-utils\
  && apt upgrade -y\
@@ -21,10 +22,13 @@ RUN apt update -y\
  cmake\
  python3 python3-pip\
  vim\
+ libsm6 libxext6 libxrender-dev\
  && apt clean
+#don't remember why ln needed, probably from tf install. which is also probably why numpy is needed in the system and not only with ck install
 RUN ln -s /usr/bin/python3 /usr/bin/python 
 # Create non-root user.
-RUN useradd -u 2000 --create-home --user-group --shell /bin/bash dvdt
+RUN groupadd -g 1500 dvdt
+RUN useradd -u 2000 --create-home -g 1500 --shell /bin/bash dvdt
 USER dvdt:dvdt
 WORKDIR /home/dvdt
 
@@ -47,9 +51,9 @@ RUN cd ${CK_ROOT} \
 
 
 RUN ck pull repo:ck-tensorflow --url=https://github.com/me2x/ck-tensorflow.git
-RUN cd $CK_REPOS/ck-tensorflow && git checkout -b tf14_src origin/tf14_src && cd
 # Pull CK repositories (including ck-env, ck-autotuning and ck-tensorflow).
-RUN ck pull repo:ck-mlperf
+RUN ck pull repo:ck-mlperf --url=https://github.com/me2x/ck-mlperf.git\
+&& ck pull repo:ck-object-detection 
 
 # Use generic Linux settings with dummy frequency setting scripts.
 RUN ck detect platform.os --platform_init_uoa=generic-linux-dummy
@@ -68,6 +72,7 @@ RUN ck install package --tags=lib,python-package,scipy --force_version=1.2.1
 RUN ck install package --tags=lib,python-package,pillow
 RUN ck install package --tags=lib,python-package,matplotlib
 RUN ck install package --tags=lib,python-package,cython
+RUN ck install package --tags=lib,python-package,cv2
 RUN ck show env --tags=python-package
 
 RUN ${CK_PYTHON} -m pip install gast --user
@@ -83,11 +88,6 @@ RUN ${CK_PYTHON} -m pip install keras_preprocessing==1.0.5 --no-deps --user
 # Install Python COCO API.
 RUN ck install package --tags=tool,coco,api
 
-#Dataset first 
-# Download the COCO 2017 validation dataset (5,000 images) to the default path;
-RUN echo | ck install package --tags=object-detection,dataset,coco.2017,val,original,full\
- && ck virtual env --tags=object-detection,dataset,coco.2017,val,original,full --shell_cmd=\
-'rm $CK_ENV_DATASET_COCO_LABELS_DIR/*train2017.json'
 
 #TF second
 # Install TF.
@@ -99,15 +99,31 @@ RUN ck detect soft:compiler.cuda --full_path=/usr/local/cuda-10.1/bin/nvcc \
 #Install CK deps
 RUN ck install ck-env:package:jdk-8u131-universal
 RUN ck install ck-env:package:tool-bazel-0.25.2-linux
-#install TF from src, enabling tensorrt
-RUN ck install package --tags=lib,tensorflow-cuda,v1.14,vsrc
+#install TF from src, clean the cache that is 16GB
+RUN ck install package --tags=lib,tensorflow-cuda,v1.14,vsrc && rm ~/.cache -rf
+
+#Dataset first normally. since here it does not share anything, maybe move after TF will let us reuse the space from .cache after removal
+# Download the COCO 2017 validation dataset (5,000 images) to the default path;
+RUN echo | ck install package --tags=object-detection,dataset,coco.2017,val,original,full\
+ && ck virtual env --tags=object-detection,dataset,coco.2017,val,original,full --shell_cmd=\
+'rm $CK_ENV_DATASET_COCO_LABELS_DIR/*train2017.json'
 
 #Models third
 # Download the SSD-ResNet50 TF model.
 RUN ck install package:tensorflowmodel-object-detection-ssd-resnet50-v1-fpn-sbp-640x640-coco
 # Download the SSD-MobileNet TF models (non-quantized and quantized).
-RUN ck install package --tags=model,tf,object-detection,mlperf,ssd-mobilenet,non-quantized
 RUN ck install package --tags=model,tf,object-detection,mlperf,ssd-mobilenet,quantized,finetuned
+RUN ck install package:ssd-mobilenetv1-fpn-shared-box-predictor \
+&&  ck install package:faster-rcnn_inception-resnet_v2-atrous-lowproposal \
+&&  ck install package:faster-rcnn-nas-lowproposal                        \
+&&  ck install package:faster-rcnn-resnet50-lowproposal                   \
+&&  ck install package:faster-rcnn-nas                                    \ 
+&&  ck install package:faster-rcnn-resnet101-lowproposal                  \
+&&  ck install package --tags=model,tf,object-detection,ssd,inceptionv2   \
+&&  ck install package --tags=model,tf,object-detection,ssdlite           \
+&&  ck install package --tags=model,tf,object-detection,rcnn,inceptionv2  \
+&&  ck install package --tags=model,tf,object-detection,yolo      
+RUN ck install package --tags=model,tf,object-detection,mlperf,ssd-mobilenet,non-quantized
 
 #Last step
 #change dependencies to support "external" benchmarking. 
@@ -117,10 +133,10 @@ RUN ck install package --tags=model,tf,object-detection,mlperf,ssd-mobilenet,qua
 #However, the user cannot read/write by default the dvdt userspace. 
 #For this reason we have to change the permission to the dvdt userspace.
 #note that this step allows to have the result, on the mounted volume, as if they were created by the user, after the end of the container run.
-RUN chmod -R 777 ~/.local
-RUN chmod -R 777 ~/CK
-RUN chmod -R 777 ~/CK_REPOS
-RUN chmod -R 777 ~/CK_TOOLS
+RUN chmod -R 755 ~/.local
+#RUN chmod -R 777 ~/CK
+RUN chmod -R 775 ~/CK_REPOS
+#RUN chmod -R 777 ~/CK_TOOLS
 
 
 #entry for the experiment folder, that will be mounted as a shared volume between dockerspace and hostspace ( -v$FULL_PATH_OF_THE_TARGET_FOLDER:/home/dvdt/CK_REPOS/local/experiment) 
@@ -132,4 +148,4 @@ RUN ck create_entry --path=/home/dvdt/CK_REPOS/local --data_uoa=experiment
 # with the non-quantized SSD-MobileNet model 
 # on the first 50 images of the COCO 2017 validation dataset.
 # weigths can be: resnet50, quantized, non-quantized
-CMD ["ck run program:object-detection-tf-py --env.CK_BATCH_COUNT=50 --dep_add_tags.weights=non-quantized"]
+CMD ["ck run program:object-detection-tf-py --env.CK_BATCH_COUNT=50 --dep_add_tags.weights=ssd-mobilenet,non-quantized"]

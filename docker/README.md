@@ -60,6 +60,7 @@ $ docker build -f Dockerfile -t ctuning/$$image_name$$ .
 <a name="models"></a>
 ### Models
 Table with the models supported by the application, with the provenience URL, and the associated tags.
+
 | Model | Tags |
 | --- | --- |
 | [faster\_rcnn\_resnet50\_lowproposals\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) | lowproposal,rcnn,resnet50|

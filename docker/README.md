@@ -38,9 +38,9 @@ This container is based on an nvidia container, and it requires to have the nvid
 ### Download
 to download from docker use the following command
 ```
-$ docker pull ctuning/$$image_name$$
+$ docker pull ctuning/<image_name>
 ```
-where $$image\_name$$ is the name of the container to download, to select between:
+where image\_name is the name of the container to download, to select between:
     
 - object-detection-tf-py.tf-prebuilt.ubuntu-18.04
 - object-detection-tf-py.tf-src.ubuntu-18.04
@@ -49,66 +49,51 @@ where $$image\_name$$ is the name of the container to download, to select betwee
 <a name="image_default_build"></a>
 ### Build
 ```bash
-$ ck build docker:$$image_name$$
+$ ck build docker:<image_name>
 ```
 **NB:** Equivalent to:
 ```bash
-$ cd `ck find docker:$$image_name$$
-$ docker build -f Dockerfile -t ctuning/$$image_name$$ .
+$ cd `ck find docker:<image_name>
+$ docker build -f Dockerfile -t ctuning/<image_name> .
 ```
 
 <a name="models"></a>
 ### Models
 Table with the models supported by the application, with the provenience URL, and the associated tags.
 
-| Model | Tags |
-| --- | --- |
-| [faster\_rcnn\_resnet50\_lowproposals\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) | lowproposal,rcnn,resnet50|
-| [faster\_rcnn\_resnet101\_lowproposals\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) |lowproposal,rcnn,resnet101|
-| [faster\_rcnn\_nas\_lowproposals\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| lowproposal,nas,rcnn|
-| [faster\_rcnn\_inception\_resnet\_v2\_atrous\_lowproposals\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) | inception,lowproposal,rcnn,resnetv2|
-| [faster\_rcnn\_inception\_v2\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| rcnn,inceptionv2|
-| [ssd\_mobilenet\_v1\_quantized\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) | ssd-mobilenet,quantized |
-| [ssd\_mobilenet\_v1\_fpn\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| fpn,ssd|
-| [ssd\_mobilenet\_v1\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| ssd-mobilenet,non-quantized,mlperf|
-| [ssd\_resnet\_50\_fpn\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)|ssd,resnet50|
-| [ssd\_inception\_v2\_coco ](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| ssd,inceptionv2|
-| [ssdlite\_mobilenet\_v2\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| ssdlite|
-| [yolo\_v3\_coco](https://github.com/YunYang1994/tensorflow-yolov3) |yolo|
+| Model | Tags | Custom Model |COCO 2017 mAP |
+| --- | --- | --- | --- |
+| [faster\_rcnn\_resnet50\_lowproposals\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) | lowproposal,rcnn,resnet50|  0 |  24.241037|
+| [faster\_rcnn\_resnet101\_lowproposals\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) |lowproposal,rcnn,resnet101|  0 | 32.594327|
+| [faster\_rcnn\_nas\_lowproposals\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| lowproposal,nas,rcnn|       0|     44.340195|
+| [faster\_rcnn\_inception\_resnet\_v2\_atrous\_lowproposals\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) | inception,lowproposal,rcnn,resnetv2|    0|  36.520117|     
+| [faster\_rcnn\_inception\_v2\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| rcnn,inceptionv2|               0|         28.309626|
+| [ssd\_mobilenet\_v1\_quantized\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) | ssd-mobilenet,quantized |     0 |     23.591693|
+| [ssd\_mobilenet\_v1\_fpn\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| fpn,ssd|                             0|    35.353170|
+| [ssd\_mobilenet\_v1\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| ssd-mobilenet,non-quantized,mlperf|        0|        23.111170|
+| [ssd\_resnet\_50\_fpn\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)|ssd,resnet50|                            0|       38.341120 	|
+| [ssd\_inception\_v2\_coco ](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| ssd,inceptionv2|                        0|    27.765988|
+| [ssdlite\_mobilenet\_v2\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| ssdlite|                             0|      24.281540|
+| [yolo\_v3\_coco](https://github.com/YunYang1994/tensorflow-yolov3) |yolo| 1|   28.532508|
 
-Every model can be called by adding the --dep\_add\_tags.weights=##tags list## flag when running the customized command for the container.
+Every model can be called by adding the `--dep\_add\_tags.weights=<tags list>` flag when running the customized command for the container.
 tags list is the comma separated list reported in all the model after the website of provenience.
-For example, to run inference on the ssd-mobilenet quantized, you will need to add --dep\_add\_tags.weights=ssd-mobilenet,quantized. To run inference on yolo, you need to specify --dep\_add\_tags.weights=yolo and so on.
+For example, to run inference on the ssd-mobilenet quantized, you will need to add `--dep\_add\_tags.weights=ssd-mobilenet,quantized`. To run inference on yolo, you need to specify `--dep\_add\_tags.weights=yolo` and so on.
 
 We report also the accuracy reference, on 5000 images, on the COCO 2017 dataset, for all the supported models.
 
-| model | mAP
-| --- | --- |
-| faster\_rcnn\_resnet50\_lowproposals\_coco	  |                     24.241037|
-| faster\_rcnn\_resnet101\_lowproposals\_coco	   |                   32.594327|
-| faster\_rcnn\_nas\_lowproposals\_coco	            |                44.340195|
-| faster\_rcnn\_inception\_resnet\_v2\_atrous\_lowproposals\_coco |	  36.520117|
-| faster\_rcnn\_inception\_v2\_coco	                          |      28.309626|
-| ssd\_mobilenet\_v1\_quantized\_coco	                         |     23.591693|
-| ssd\_mobilenet\_v1\_fpn\_coco	                           |         35.353170|
-| ssd\_mobilenet\_v1\_coco	                            |             23.111170|
-| ssd\_resnet\_50\_fpn\_coco	                             |          38.341120 	|
-| ssd\_inception\_v2\_coco                                    |     27.765988|
-| ssdlite\_mobilenet\_v2\_coco	                               |      24.281540|
-| yolo\_v3\_coco	                                        |           28.532508|
-
 <a name="configuration_flags"></a>
 ### Other available flags
-| Env Flag name | Possible Values | Description|
-| --- | --- | --- |
-| --env.CK\_CUSTOM\_MODEL | 1/0 | this number specifies if the model comes from the tensorflow zoo or comes from other source. Model coming from other sources have to implement their own preprocess,postprocess and get tensor functions, as explained in the original application.|
-| --env.CK\_BATCH\_SIZE| integer | number of images to process in a single batch|
-| --env.CK\_BATCH\_COUNT | integer | number of batches to be processed|
-| --env.CK\_METRIC\_TYPE|COCO| this variable has to be used, with the models present in the container, to tell the application that we will be working with models trained for the coco dataset|
-| --env.CK\_ENABLE\_BATCH|1/0| number used to specify if we want to enable the batch feature or not and process all the images singularly.|
-| --env.CK\_ENABLE\_TENSORRT| 1/0| integer to enable the tensorRT backend|
-| --env.CK\_TENSORRT\_DYNAMIC|1/0 |integer to enable the dynamic feature of tensorRT backend|
-| --env.CK\_ENV\_IMAGE\_WIDTH and CK\_ENV\_IMAGE\_HEIGHT| integer| These two parameters can be used to try to resize the images at runtime at a different size than the one suggested for each single model. This usually decrease accuracy.|
+| Env Flag name | Possible Values | Default Value | Description|
+| --- | --- | --- | --- |
+| --env.CK\_CUSTOM\_MODEL | 1/0 | 0 | this flag specifies if the model comes from the tensorflow zoo or comes from other source. Model coming from other sources have to implement their own preprocess,postprocess and get tensor functions, as explained in the original application.|
+| --env.CK\_BATCH\_SIZE| integer | 1 | number of images to process in a single batch|
+| --env.CK\_BATCH\_COUNT | integer |1| number of batches to be processed|
+| --env.CK\_METRIC\_TYPE|COCO| COCO | this variable has to be used, with the models present in the container, to tell the application that we will be working with models trained for the coco dataset|
+| --env.CK\_ENABLE\_BATCH|1/0| 0 | this flag is used to specify if we want to enable the batch feature or not and process all the images singularly.|
+| --env.CK\_ENABLE\_TENSORRT| 1/0| 0 | this flag enables the tensorRT backend|
+| --env.CK\_TENSORRT\_DYNAMIC|1/0 | 0 | this flag enables the dynamic feature of tensorRT backend|
+| --env.CK\_ENV\_IMAGE\_WIDTH and CK\_ENV\_IMAGE\_HEIGHT| integer| Model Dependent | These two parameters can be used to try to resize the images at runtime at a different size than the one suggested for each single model. This usually decrease accuracy.|
 
 
 <a name="example_run"></a>

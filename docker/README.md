@@ -16,9 +16,9 @@
 
 <a name="supported"></a>
 ## Available Containers
-    -[Ubuntu 18.04, with Tensorflow prebuilt version (installed via pip)](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-prebuilt.ubuntu-18.04)
-    -[Ubuntu 18.04, with Tensorflow compiled from sources for the CPU](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-src.ubuntu-18.04)
-    -[Ubuntu 18.04, with Tensorflow compiled from sources for the GPU, with the TensorRT support enabled](https://hub.docker.com/r/ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04)
+    - [Ubuntu 18.04, with Tensorflow prebuilt version (installed via pip)](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-prebuilt.ubuntu-18.04)
+    - [Ubuntu 18.04, with Tensorflow compiled from sources for the CPU](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-src.ubuntu-18.04)
+    - [Ubuntu 18.04, with Tensorflow compiled from sources for the GPU, with the TensorRT support enabled](https://hub.docker.com/r/ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04)
     
 
 
@@ -38,9 +38,9 @@ This container is based on an nvidia container, and it requires to have the nvid
 ### Download
 to download from docker use the following command
 ```
-$ docker pull ctuning/##image_name##
+$ docker pull ctuning/$$image_name$$
 ```
-where ##image\_name## is the name of the container to download, to select between:
+where $$image\_name$$ is the name of the container to download, to select between:
     -object-detection-tf-py.tf-prebuilt.ubuntu-18.04
     -object-detection-tf-py.tf-src.ubuntu-18.04
     -object-detection-tf-py.tensorrt.ubuntu-18.04
@@ -48,12 +48,12 @@ where ##image\_name## is the name of the container to download, to select betwee
 <a name="image_default_build"></a>
 ### Build
 ```bash
-$ ck build docker:##image_name##
+$ ck build docker:$$image_name$$
 ```
 **NB:** Equivalent to:
 ```bash
-$ cd `ck find docker:##image_name##
-$ docker build -f Dockerfile -t ctuning/##image_name## .
+$ cd `ck find docker:$$image_name$$
+$ docker build -f Dockerfile -t ctuning/$$image_name$$ .
 ```
 
 <a name="models"></a>

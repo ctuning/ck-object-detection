@@ -16,9 +16,9 @@
 
 <a name="supported"></a>
 ## Available Containers
-    - [Ubuntu 18.04, with Tensorflow prebuilt version (installed via pip)](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-prebuilt.ubuntu-18.04)
-    - [Ubuntu 18.04, with Tensorflow compiled from sources for the CPU](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-src.ubuntu-18.04)
-    - [Ubuntu 18.04, with Tensorflow compiled from sources for the GPU, with the TensorRT support enabled](https://hub.docker.com/r/ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04)
+- [Ubuntu 18.04, with Tensorflow prebuilt version (installed via pip)](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-prebuilt.ubuntu-18.04)
+- [Ubuntu 18.04, with Tensorflow compiled from sources for the CPU](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-src.ubuntu-18.04)
+- [Ubuntu 18.04, with Tensorflow compiled from sources for the GPU, with the TensorRT support enabled](https://hub.docker.com/r/ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04)
     
 
 
@@ -41,9 +41,10 @@ to download from docker use the following command
 $ docker pull ctuning/$$image_name$$
 ```
 where $$image\_name$$ is the name of the container to download, to select between:
-    - object-detection-tf-py.tf-prebuilt.ubuntu-18.04
-    - object-detection-tf-py.tf-src.ubuntu-18.04
-    - object-detection-tf-py.tensorrt.ubuntu-18.04
+    
+- object-detection-tf-py.tf-prebuilt.ubuntu-18.04
+- object-detection-tf-py.tf-src.ubuntu-18.04
+- object-detection-tf-py.tensorrt.ubuntu-18.04
 
 <a name="image_default_build"></a>
 ### Build
@@ -78,18 +79,20 @@ For example, to run inference on the ssd-mobilenet quantized, you will need to a
 
 We report also the accuracy reference, on 5000 images, on the COCO 2017 dataset, for all the supported models.
 
-- faster\_rcnn\_resnet50\_lowproposals\_coco	                      mAP: 24.241037
-- faster\_rcnn\_resnet101\_lowproposals\_coco	                     mAP: 32.594327
-- faster\_rcnn\_nas\_lowproposals\_coco	                           mAP: 44.340195
-- faster\_rcnn\_inception\_resnet\_v2\_atrous\_lowproposals\_coco	 mAP: 36.520117
-- faster\_rcnn\_inception\_v2\_coco	                               mAP: 28.309626
-- ssd\_mobilenet\_v1\_quantized\_coco	                             mAP: 23.591693
-- ssd\_mobilenet\_v1\_fpn\_coco	                                   mAP: 35.353170
-- ssd\_mobilenet\_v1\_coco	                                        mAP: 23.111170
-- ssd\_resnet\_50\_fpn\_coco	                                      mAP: 38.341120 	
-- ssd\_inception\_v2\_coco ]                                       mAP: 27.765988
-- ssdlite\_mobilenet\_v2\_coco	                                    mAP: 24.281540
-- yolo\_v3\_coco	                                                  mAP: 28.532508
+| model | mAP
+| --- | --- |
+| faster\_rcnn\_resnet50\_lowproposals\_coco	  |                     24.241037|
+| faster\_rcnn\_resnet101\_lowproposals\_coco	   |                   32.594327|
+| faster\_rcnn\_nas\_lowproposals\_coco	            |                44.340195|
+| faster\_rcnn\_inception\_resnet\_v2\_atrous\_lowproposals\_coco |	  36.520117|
+| faster\_rcnn\_inception\_v2\_coco	                          |      28.309626|
+| ssd\_mobilenet\_v1\_quantized\_coco	                         |     23.591693|
+| ssd\_mobilenet\_v1\_fpn\_coco	                           |         35.353170|
+| ssd\_mobilenet\_v1\_coco	                            |             23.111170|
+| ssd\_resnet\_50\_fpn\_coco	                             |          38.341120 	|
+| ssd\_inception\_v2\_coco                                    |     27.765988|
+| ssdlite\_mobilenet\_v2\_coco	                               |      24.281540|
+| yolo\_v3\_coco	                                        |           28.532508|
 
 <a name="configuration_flags"></a>
 ### Other available flags

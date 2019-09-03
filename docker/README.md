@@ -1,4 +1,4 @@
-# [Object Detection - Docker containers]
+#[Object Detection - Docker containers]
 1. [List of supported images](#supported)
 
 2. [Prereq](#prereq)
@@ -15,13 +15,15 @@
 [manage Docker as a non-root user](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user).
 
 <a name="supported"></a>
-## Available Containers
+# Available Containers
 - [Ubuntu 18.04, with Tensorflow prebuilt version (installed via pip)](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-prebuilt.ubuntu-18.04)
 - [Ubuntu 18.04, with Tensorflow compiled from sources for the CPU](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-src.ubuntu-18.04)
 - [Ubuntu 18.04, with Tensorflow compiled from sources for the GPU, with the TensorRT support enabled](https://hub.docker.com/r/ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04)
     
 
 
+<a name="prereq"></a>
+# Prerequisites
 <a name="cuda_drivers&docker"></a>
 ## System Setup
 
@@ -32,10 +34,10 @@ This container is based on an nvidia container, and it requires to have the nvid
 
 
 <a name="image_default"></a>
-## Default image
+# Usage
 
 <a name="image_default_download"></a>
-### Download
+## Download
 to download from docker use the following command
 ```
 $ docker pull ctuning/<image_name>
@@ -47,7 +49,7 @@ where image\_name is the name of the container to download, to select between:
 - object-detection-tf-py.tensorrt.ubuntu-18.04
 
 <a name="image_default_build"></a>
-### Build
+## Build
 ```bash
 $ ck build docker:<image_name>
 ```
@@ -58,7 +60,7 @@ $ docker build -f Dockerfile -t ctuning/<image_name> .
 ```
 
 <a name="models"></a>
-### Models
+## Models
 Table with the models supported by the application, with the provenience URL, and the associated tags.
 
 | Model | Tags | Custom Model |COCO 2017 mAP |
@@ -82,8 +84,8 @@ For example, to run inference on the ssd-mobilenet quantized, you will need to a
 
 We report also the accuracy reference, on 5000 images, on the COCO 2017 dataset, for all the supported models.
 
-<a name="configuration_flags"></a>
-### Other available flags
+<a name="flags"></a>
+## Other available flags
 | Env Flag name | Possible Values | Default Value | Description|
 | --- | --- | --- | --- |
 | --env.CK\_CUSTOM\_MODEL | 1/0 | 0 | this flag specifies if the model comes from the tensorflow zoo or comes from other source. Model coming from other sources have to implement their own preprocess,postprocess and get tensor functions, as explained in the original application.|
@@ -97,7 +99,7 @@ We report also the accuracy reference, on 5000 images, on the COCO 2017 dataset,
 
 
 <a name="example_run"></a>
-##Run
+## Run
 
 Here we will provid an example of command that can be used to run.
 If the image used targets GPU, it is necessary to add the flag --runtime=nvidia when launching the docker command, as follows

@@ -1,4 +1,4 @@
-#[Object Detection - Docker containers]
+# Object Detection - Docker containers
 1. [List of supported images](#supported)
 
 2. [Prereq](#prereq)

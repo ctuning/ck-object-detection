@@ -1,63 +1,65 @@
-# Object Detection - Docker containers
+# Object Detection - Docker images
+
 1. [List of supported images](#supported)
 
-2. [Prereq](#prereq)
-    - [CUDA Drivers & Nvidia Docker](#cuda_drivers&docker)
+2. [Prerequisites](#prereq)
+    - [Setup NVIDIA Docker](#setup)
+    - [Download](#image_download) or [Build](#image_build) images
 
-3. [Usage](#image_default) 
-    - [Download](#image_default_download) or [Build](#image_default_build)
+3. [Usage](#usage)
     - [Models](#models)
-    - [Configuration Flags](#flags)
-    - [Run](#image_default_run)
-    - [Benchmark](#image_benchmark)
+    - [Flags](#flags)
+    - [Run](#run)
+    - [Benchmark](#benchmark)
 
 **NB:** You may need to run commands below with `sudo`, unless you
 [manage Docker as a non-root user](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user).
 
 <a name="supported"></a>
-# Available Containers
-- [Ubuntu 18.04, with Tensorflow prebuilt version (installed via pip)](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-prebuilt.ubuntu-18.04)
-- [Ubuntu 18.04, with Tensorflow compiled from sources for the CPU](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-src.ubuntu-18.04)
-- [Ubuntu 18.04, with Tensorflow compiled from sources for the GPU, with the TensorRT support enabled](https://hub.docker.com/r/ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04)
-    
+# Supported images
 
+The following table lists supported Docker images based on Ubuntu 18.04 with TensorFlow 1.14.0.
+
+| Image name | Image description | Docker Hub link |
+|-|-|-|
+|`object-detection-tf-py.tf-prebuilt.ubuntu-18.04`| TensorFlow prebuilt for the CPU (installed via pip) | [CPU prebuilt](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-prebuilt.ubuntu-18.04) |
+|`object-detection-tf-py.tf-src.ubuntu-18.04`     | TensorFlow built from sources for the CPU        | [CPU from sources](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-src.ubuntu-18.04) |
+|`object-detection-tf-py.tensorrt.ubuntu-18.04`   | TensorFlow built from sources for the GPU, with TensorRT support enabled | [CUDA+TensorRT](https://hub.docker.com/r/ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04) |
+
+**NB:** As the prebuilt TensorFlow variant does not support AVX2 instructions, it is advisable to use the TensorFlow variant built from sources on compatible hardware.
 
 <a name="prereq"></a>
 # Prerequisites
-<a name="cuda_drivers&docker"></a>
-## System Setup
 
-Follow the instruction in https://github.com/NVIDIA/nvidia-docker to prepare the system to run this container.
-This container is based on an nvidia container, and it requires to have the nvidia-docker environment installed to work.
+<a name="setup"></a>
+## System setup
 
+As our images are based on [nvidia-docker](https://github.com/NVIDIA/nvidia-docker), please follow instructions there to set up your system.
 
+<a name="image_download"></a>
+## Download images from Docker Hub
 
-
-<a name="image_default"></a>
-# Usage
-
-<a name="image_default_download"></a>
-## Download
-to download from docker use the following command
+To download an image from Docker Hub, use the following command:
 ```
 $ docker pull ctuning/<image_name>
 ```
-where image\_name is the name of the container to download, to select between:
+where `<image_name>` is the image name from the [table above](#supported).
     
-- object-detection-tf-py.tf-prebuilt.ubuntu-18.04
-- object-detection-tf-py.tf-src.ubuntu-18.04
-- object-detection-tf-py.tensorrt.ubuntu-18.04
 
-<a name="image_default_build"></a>
-## Build
+<a name="image_build"></a>
+## Build image
+
 ```bash
 $ ck build docker:<image_name>
 ```
 **NB:** Equivalent to:
 ```bash
-$ cd `ck find docker:<image_name>
+$ cd `ck find docker:<image_name>`
 $ docker build -f Dockerfile -t ctuning/<image_name> .
 ```
+
+<a name="usage"></a>
+# Usage
 
 <a name="models"></a>
 ## Models

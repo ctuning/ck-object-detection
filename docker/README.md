@@ -165,7 +165,7 @@ You can use `ck benchmark` to save the result on the host system as CK experimen
 $ docker run --runtime=nvidia \
     --env-file `ck find docker:object-detection-tf-py.tensorrt.ubuntu-18.04`/env.list \
     --user=$(id -u):1500 \
-    -v$PATH_TO_TARGET_FOLDER:/home/dvdt/CK_REPOS/local/experiment \
+    --volume=<path_to_folder_with_results>:/home/dvdt/CK_REPOS/local/experiment \
     --rm ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04 \
         "ck benchmark program:object-detection-tf-py \
         --env.CK_BATCH_COUNT=50 \
@@ -183,7 +183,7 @@ $ docker run --runtime=nvidia \
 
 - `--env-file`: the path to the `env.list` file, which is usually located in the same folder as the Dockerfile. (Currently, the `env.list` files are identical for all the images.)
 - `--user`: your user id on the host system and a fixed group id (1500) needed to access files in the container.
-- `-v`: a folder with read/write permissions for the user that serves as shared space ("volume") between the host and the container.
+- `--volume`: a folder with read/write permissions for the user that serves as shared space ("volume") between the host and the container.
 
 <a name="parameters_ck"></a>
 ### CK parameters

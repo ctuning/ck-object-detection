@@ -5,10 +5,11 @@
     - [Setup NVIDIA Docker](#setup)
     - [Download](#image_download) and/or [Build](#image_build) images
 3. [Usage](#usage)
-    - [Models](#models)
-    - [Flags](#flags)
-    - [Run](#run)
+    - [Run once](#run)
+        - [Models](#models)
+        - [Flags](#flags)
     - [Benchmark](#benchmark)
+    - [Explore](#explore)
 
 **NB:** You may need to run commands below with `sudo`, unless you
 [manage Docker as a non-root user](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user).
@@ -18,11 +19,11 @@
 
 The following table lists supported Docker images.
 
-| Image name | Image description | Docker Hub link |
+| Image name (`<image_name>`) | Image description | Docker Hub link |
 |-|-|-|
 |`object-detection-tf-py.tf-prebuilt.ubuntu-18.04`| TensorFlow prebuilt for the CPU (installed via pip) | [CPU prebuilt](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-prebuilt.ubuntu-18.04) |
 |`object-detection-tf-py.tf-src.ubuntu-18.04`     | TensorFlow built from sources for the CPU           | [CPU from sources](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-src.ubuntu-18.04)  |
-|`object-detection-tf-py.tensorrt.ubuntu-18.04`   | TensorFlow built from sources for the GPU, with TensorRT support enabled | [CUDA+TensorRT](https://hub.docker.com/r/ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04) |
+|`object-detection-tf-py.tensorrt.ubuntu-18.04`   | TensorFlow built from sources for the GPU, with TensorRT support enabled | [CUDA+TensorRT from sources](https://hub.docker.com/r/ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04) |
 
 The CPU images are based on the [Ubuntu 18.04 image](https://hub.docker.com/_/ubuntu) from Docker Hub,
 while the GPU image is based on the [TensorRT 19.08 image](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_19-08.html) from NVIDIA
@@ -64,14 +65,42 @@ where `<image_name>` is the image name from the [table above](#supported).
 **NB:** This CK command is equivalent to:
 ```bash
 $ cd `ck find docker:<image_name>`
-$ docker build -f Dockerfile -t ctuning/<image_name> .
+$ docker build --no-cache -f Dockerfile -t ctuning/<image_name> .
 ```
 
 <a name="usage"></a>
 # Usage
 
+<a name="run"></a>
+## Run inference once
+
+Once you have downloaded or built an image, you can run inference e.g. as follows:
+```bash
+$ docker run --rm ctuning/object-detection-tf-py.tf-prebuilt.ubuntu-18.04 \
+    "ck run program:object-detection-tf-py \
+        --dep_add_tags.weights=ssd-mobilenet,quantized \
+        --env.CK_BATCH_COUNT=50 \
+    "
+```
+Here, we run inference on 50 images on the CPU using the quantized SSD-MobileNet model.
+
+To perform inference on the GPU, add the `--runtime=nvidia` flag:
+
+```bash
+$ docker run --runtime=nvidia --rm ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04 \
+    "ck run program:object-detection-tf-py \
+        --dep_add_tags.weights=ssd-mobilenet,quantized \
+        --env.CK_BATCH_COUNT=50 \
+        --env.CK_ENABLE_TENSORRT=1 \
+        --env.CK_TENSORRT_DYNAMIC=1 \
+    "
+```
+Here, we additionally request to use TensorRT in the [dynamic mode](https://docs.nvidia.com/deeplearning/frameworks/tf-trt-user-guide/index.html#static-dynamic-mode).
+
+We describe all supported [models](#models) and [flags](#flags) below.
+
 <a name="models"></a>
-## Models
+### Models
 
 Our [TensorFlow-Python application](https://github.com/ctuning/ck-tensorflow/blob/master/program/object-detection-tf-py/README.md) supports the following TensorFlow models trained on the COCO 2017 dataset. With the exception of a [TensorFlow reimplementation of YOLO v3](https://github.com/YunYang1994/tensorflow-yolov3), all the models come from the [TensorFlow Object Detection model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md).
 Note that we report the accuracy reference (mAP in %) on the COCO 2017 dataset (5,000 images).
@@ -95,59 +124,22 @@ Each model can be selected by adding the `--dep_add_tags.weights=<tags>` flag wh
 For example, to run inference on the quantized SSD-MobileNet model, add `--dep_add_tags.weights=ssd-mobilenet,quantized`; to run inference on the YOLO model, add `--dep_add_tags.weights=yolo`; and so on.
 
 <a name="flags"></a>
-## Other flags
+### Flags
 
-| Env Flag name | Possible Values | Default Value | Description|
-| --- | --- | --- | --- |
-| `--env.CK_CUSTOM_MODEL` | 0,1 | 0 | Specifies if the model comes from the TensorFlow zoo or from another source. (Models from other sources have to implement their own preprocess, postprocess and get tensor functions, as explained in the [application documentation](https://github.com/ctuning/ck-tensorflow/blob/master/program/object-detection-tf-py/README.md) (to be updated).) |
-| `--env.CK_ENABLE_BATCH` | 0,1 | 0 | Specifies if batching should be enabled (must be used for `--env.CK_BATCH_SIZE` to take effect). |
-| `--env.CK_BATCH_SIZE` | positive integer | 1 | Specifies the number of images to process in a single batch (must be used with `--env.CK_ENABLE_BATCH=1`). |
-| `--env.CK_BATCH_COUNT` | positive integer | 1 | Specifies the number of batches to be processed. |
-| `--env.CK_ENABLE_TENSORRT` | 0,1 | 0 | Enables the TensorRT backend (only to be used on the TensorRT image). |
-| `--env.CK_TENSORRT_DYNAMIC` | 0,1 | 0 | Enables the [TensorRT dynamic mode](https://docs.nvidia.com/deeplearning/frameworks/tf-trt-user-guide/index.html#static-dynamic-mode). |
+| Env Flag                    | Possible Values  | Default Value | Description |
+|-|-|-|-|
+| `--env.CK_CUSTOM_MODEL`     | 0,1              | 0 | Specifies if the model comes from the TensorFlow zoo or from another source. (Models from other sources have to implement their own preprocess, postprocess and get tensor functions, as explained in the [application documentation](https://github.com/ctuning/ck-tensorflow/blob/master/program/object-detection-tf-py/README.md) (to be updated).) |
+| `--env.CK_ENABLE_BATCH`     | 0,1              | 0 | Specifies if batching should be enabled (must be used for `--env.CK_BATCH_SIZE` to take effect). |
+| `--env.CK_BATCH_SIZE`       | positive integer | 1 | Specifies the number of images to process in a single batch (must be used with `--env.CK_ENABLE_BATCH=1`). |
+| `--env.CK_BATCH_COUNT`      | positive integer | 1 | Specifies the number of batches to be processed. |
+| `--env.CK_ENABLE_TENSORRT`  | 0,1              | 0 | Enables the TensorRT backend (only to be used on the TensorRT image). |
+| `--env.CK_TENSORRT_DYNAMIC` | 0,1              | 0 | Enables the [TensorRT dynamic mode](https://docs.nvidia.com/deeplearning/frameworks/tf-trt-user-guide/index.html#static-dynamic-mode). |
 | `--env.CK_ENV_IMAGE_WIDTH`, `--env.CK_ENV_IMAGE_HEIGHT` | positive integer | Model-specific (set by CK) | These parameters can be used to resize at runtime the input images to a different size than the default for the model. This usually decreases the accuracy. |
 
 
-<a name="example_run"></a>
-## Run
+<a name="benchmark"></a>
+## Benchmark individual models
 
-Here we will provid an example of command that can be used to run.
-If the image used targets GPU, it is necessary to add the flag --runtime=nvidia when launching the docker command, as follows
-
-```bash
-$ docker run --runtime=nvidia --rm ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04 \
-    "ck run program:object-detection-tf-py \
-        --dep_add_tags.weights=ssd-mobilenet,quantized \
-        --env.CK_BATCH_COUNT=50 \
-    "
-```
-In this case, we are launching the command to perform the program object-detection on 50 images using the ssd-mobilenet quantized network to perform inference, on a tensorflow backend running on the GPU.
-
-```bash
-$ docker run --rm ctuning/object-detection-tf-py.tf-prebuilt.ubuntu-18.04 \
-    "ck run program:object-detection-tf-py \
-        --dep_add_tags.weights=ssd-mobilenet,quantized \
-        --env.CK_BATCH_COUNT=50 \
-    "
-```
-
-In this case, we are running the same command with a different image, targeting a backend using tensorflow installed with pip.
-
-
-```bash
-$ docker run --runtime=nvidia --rm ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04 \
-    "ck run program:object-detection-tf-py \
-        --dep_add_tags.weights=ssd-mobilenet,quantized \
-        --env.CK_BATCH_COUNT=50 \
-        --env.CK_ENABLE_TENSORRT=1\
-        --env.CK_TENSORRT_DYNAMIC=1\
-    "
-```
-In the last example, we want to run exploiting TensorRT backend, and in particular its dynamic features (the network will not setup until the first input is provided, and that input is giving the shape to the network itself.
-
-
-## Benchmark
-<a name="image_benchmark"></a>
 This command allows to run the benchmark in the docker container, and save the result on the host machine.
 Benchmark are a particular functionality of the CK framework that allows to run experiments in a controlled environment.
 
@@ -181,6 +173,7 @@ the record\_uoa is a unique identifier used to build experiments and must not ov
 the tags can be used to identify the experiment, and to organize experiments
 the --record and --record\_repo=local must NOT be changed, since they are part of the setup to have the results saved in the mounted volume.
 
-## Explore
+<a name="explore"></a>
+## Explore design space
 
-...
+**TODO**

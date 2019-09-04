@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/tensorrt:19.07-py3
+FROM nvcr.io/nvidia/tensorrt:19.08-py3
 
 LABEL maintainer="Anton Lokhmotov <anton@dividiti.com>"
 

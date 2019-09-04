@@ -103,7 +103,7 @@ We describe all supported [models](#models) and [flags](#flags) below.
 ### Models
 
 Our [TensorFlow-Python application](https://github.com/ctuning/ck-tensorflow/blob/master/program/object-detection-tf-py/README.md) supports the following TensorFlow models trained on the COCO 2017 dataset. With the exception of a [TensorFlow reimplementation of YOLO v3](https://github.com/YunYang1994/tensorflow-yolov3), all the models come from the [TensorFlow Object Detection model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md).
-Note that we report the accuracy reference (mAP in %) on the COCO 2017 dataset (5,000 images).
+Note that we report the accuracy reference (mAP in %) on the COCO 2017 validation dataset (5,000 images).
 
 | Model | Unique CK Tags (`<tags>`) | Is Custom? | mAP in % |
 | --- | --- | --- | --- |
@@ -138,40 +138,45 @@ For example, to run inference on the quantized SSD-MobileNet model, add `--dep_a
 
 
 <a name="benchmark"></a>
-## Benchmark individual models
+## Benchmark models individually
 
-This command allows to run the benchmark in the docker container, and save the result on the host machine.
-Benchmark are a particular functionality of the CK framework that allows to run experiments in a controlled environment.
+When you run inference using `ck run`, the result gets printed but not saved.
 
-Parameter explanation:
-env-file is found in the same folder of the Dockerfile, and can be reached from the path of the main CK\_REPO folder with the path in the commandline.
-user is needed to run the docker image as the user you are on your local machine. the group (1500) is a fixed value in the docker container, and you will need it to use read/write the files in the image.
-volume (-v) is the shared space between the container and the host. you have to provide a folder where you have rw permission.
+You can use `ck benchmark` to save the result on the host machine e.g. as follows:
 
 ```bash
-$ docker run \
-    --runtime=nvidia \
-    --env-file  $PATH_TO_CK_REPO/ck-object-detection/docker/object-detection-tf-py.tensorrt.ubuntu-18.04/env.list \
+$ docker run --runtime=nvidia \
+    --env-file `ck find docker:object-detection-tf-py.tensorrt.ubuntu-18.04`/env.list \
     --user=$(id -u):1500 \
     -v$PATH_TO_TARGET_FOLDER:/home/dvdt/CK_REPOS/local/experiment \
-    --rm \
-    ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04 \
+    --rm ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04 \
         "ck benchmark program:object-detection-tf-py \
-        --repetitions=1 \
-        --env.CK_BATCH_SIZE=1 \
         --env.CK_BATCH_COUNT=50 \
-        --env.CK_METRIC_TYPE=COCO \
+        --repetitions=1 \
         --record \
         --record_repo=local \
-        --record_uoa=mlperf-object-detection-ssd-mobilenet-quantized-tf-py-accuracy \
-	--dep_add_tags.weights=ssd-mobilenet,quantized \
-        --tags=mlperf,object-detection,ssd-mobilenet,tf-py,accuracy,quantized"
+        --record_uoa=object-detection-tf-py-ssd-mobilenet-quantized-accuracy \
+        --tags=object-detection,tf-py,ssd-mobilenet,quantized,accuracy \
+        --dep_add_tags.weights=ssd-mobilenet,quantized \
+        "
 ```
 
-where the number of repetitions can be changed in order to create a statistically valid number of experiments
-the record\_uoa is a unique identifier used to build experiments and must not overlap with other benchmarks
-the tags can be used to identify the experiment, and to organize experiments
-the --record and --record\_repo=local must NOT be changed, since they are part of the setup to have the results saved in the mounted volume.
+<a name="parameters_docker"></a>
+### Docker parameters
+
+- `--env-file`: the path to the `env.list` file, which is usually located in the same folder as the Dockerfile. (Currently, the `env.list` files are identical for all the images.)
+- `--user`: your user id on your local machine and a fixed group id (1500) needed to access files in the container.
+- `-v`: a folder with read/write permissions for the user that serves as shared space ("volume") between the host and the container.
+
+<a name="parameters_ck"></a>
+### CK parameters
+
+- `--env.CK_BATCH_COUNT`: the number of batches to be processed; assuming `--env.CK_BATCH_SIZE=1`, we typically use `--env.CK_BATCH_COUNT=5000` for experiments that measure accuracy over the COCO 2017 validation set and e.g. `--env.CK_BATCH_COUNT=2` for experiments that measure performance. (Since the first batch is usually slower than all subsequent batches, its execution time has to be discarded. The execution times of subsequent batches will be averaged.)
+- `--repetitions`: the number of times to run an experiment; we typically use `--repetitions=1` for experiments that measure accuracy and e.g. `--repetitions=10` for experiments that measure performance.
+- `--record`, `--record_repo=local`: must be present to have the results saved in the mounted volume.
+- `--record_uoa`: a unique name for each CK experiment entry; here, `object-detection-tf-py` (the name of the program) is the same for all experiments, `ssd-mobilenet-quantized` is unique for each model, `accuracy` indicates the accuracy mode.
+- `--tags`: specify the tags for each CK experiment entry; we typically make them similar to the experiment name.
+
 
 <a name="explore"></a>
 ## Explore design space

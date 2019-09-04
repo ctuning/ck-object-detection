@@ -1,18 +1,18 @@
 # Object Detection - Docker images
 
 1. [List of supported images](#supported)
-2. [Installation](#installation)
-    - [Setup NVIDIA Docker](#setup)
+2. [Setup](#setup)
+    - [Set up NVIDIA Docker](#setup_nvidia)
+    - [Set up Collective Knowledge](#setup_ck)
     - [Download](#image_download) and/or [Build](#image_build) images
 3. [Usage](#usage)
     - [Run once](#run)
         - [Models](#models)
         - [Flags](#flags)
     - [Benchmark](#benchmark)
+        - [Docker parameters](#parameters_docker)
+        - [CK parameters](#parameters_ck)
     - [Explore](#explore)
-
-**NB:** You may need to run commands below with `sudo`, unless you
-[manage Docker as a non-root user](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user).
 
 <a name="supported"></a>
 # Supported images
@@ -31,13 +31,31 @@ while the GPU image is based on the [TensorRT 19.08 image](https://docs.nvidia.c
 
 All the images include TensorFlow 1.14.0, about a dozen of [object detection models](#models) and the [COCO 2017 dataset](http://cocodataset.org).
 
-<a name="installation"></a>
-# Installation
-
 <a name="setup"></a>
-## System setup
+# Setup
+
+<a name="setup_nvidia"></a>
+## Set up NVIDIA Docker
 
 As our GPU image is based on [nvidia-docker](https://github.com/NVIDIA/nvidia-docker), please follow instructions there to set up your system.
+
+Note that you may need to run commands below with `sudo`, unless you [manage Docker as a non-root user](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user).
+
+<a name="setup_ck"></a>
+## Set up Collective Knowledge
+
+You will need to install [Collective Knowledge](http://cknowledge.org) to build images and save benchmarking results.
+Please follow the [CK installation instructions](https://github.com/ctuning/ck#installation) and then pull our object detection repository:
+
+```bash
+$ ck pull repo:ck-object-detection
+```
+
+**NB:** Refresh all CK repositories after any updates (e.g. bug fixes):
+```bash
+$ ck pull all
+```
+(This only updates CK repositories on the host system. To update any Docker images, [rebuild](#build) them using the `--no-cache` flag.)
 
 <a name="image_download"></a>
 ## Download images from Docker Hub
@@ -51,7 +69,7 @@ where `<image_name>` is the image name from the [table above](#supported).
 **NB:** As the prebuilt TensorFlow variant does not support AVX2 instructions, we advise to use the TensorFlow variant built from sources on compatible hardware.
 In fact, as the latter was built on an [HP Z640 workstation](http://h20195.www2.hp.com/v2/default.aspx?cc=ie&lc=en&oid=7528701)
 with an [Intel(R) Xeon(R) CPU E5-2650 v3](https://ark.intel.com/products/81705/Intel-Xeon-Processor-E5-2650-v3-25M-Cache-2_30-GHz) (launched in Q3'14), we advise
-to rebuild the image on your system.
+to [rebuild](#build) the image on your system.
 
 <a name="image_build"></a>
 ## Build images
@@ -141,8 +159,7 @@ For example, to run inference on the quantized SSD-MobileNet model, add `--dep_a
 ## Benchmark models individually
 
 When you run inference using `ck run`, the result gets printed but not saved.
-
-You can use `ck benchmark` to save the result on the host machine e.g. as follows:
+You can use `ck benchmark` to save the result on the host system as CK experiment entries (JSON files) e.g. as follows:
 
 ```bash
 $ docker run --runtime=nvidia \
@@ -165,17 +182,17 @@ $ docker run --runtime=nvidia \
 ### Docker parameters
 
 - `--env-file`: the path to the `env.list` file, which is usually located in the same folder as the Dockerfile. (Currently, the `env.list` files are identical for all the images.)
-- `--user`: your user id on your local machine and a fixed group id (1500) needed to access files in the container.
+- `--user`: your user id on the host system and a fixed group id (1500) needed to access files in the container.
 - `-v`: a folder with read/write permissions for the user that serves as shared space ("volume") between the host and the container.
 
 <a name="parameters_ck"></a>
 ### CK parameters
 
-- `--env.CK_BATCH_COUNT`: the number of batches to be processed; assuming `--env.CK_BATCH_SIZE=1`, we typically use `--env.CK_BATCH_COUNT=5000` for experiments that measure accuracy over the COCO 2017 validation set and e.g. `--env.CK_BATCH_COUNT=2` for experiments that measure performance. (Since the first batch is usually slower than all subsequent batches, its execution time has to be discarded. The execution times of subsequent batches will be averaged.)
+- `--env.CK_BATCH_COUNT`: the number of batches to be processed; assuming `--env.CK_BATCH_SIZE=1`, we typically use `--env.CK_BATCH_COUNT=5000` for experiments that measure accuracy over the COCO 2017 validation set and e.g. `--env.CK_BATCH_COUNT=2` for experiments that measure performance. (With TensorFlow, the first batch is usually slower than all subsequent batches. Therefore, its execution time has to be discarded. The execution times of subsequent batches will be averaged.)
 - `--repetitions`: the number of times to run an experiment; we typically use `--repetitions=1` for experiments that measure accuracy and e.g. `--repetitions=10` for experiments that measure performance.
 - `--record`, `--record_repo=local`: must be present to have the results saved in the mounted volume.
 - `--record_uoa`: a unique name for each CK experiment entry; here, `object-detection-tf-py` (the name of the program) is the same for all experiments, `ssd-mobilenet-quantized` is unique for each model, `accuracy` indicates the accuracy mode.
-- `--tags`: specify the tags for each CK experiment entry; we typically make them similar to the experiment name.
+- `--tags`: specify the tags for each CK experiment entry; we typically make them similar to the experiment entry name.
 
 
 <a name="explore"></a>

@@ -1,11 +1,9 @@
 # Object Detection - Docker images
 
 1. [List of supported images](#supported)
-
-2. [Prerequisites](#prereq)
+2. [Installation](#installation)
     - [Setup NVIDIA Docker](#setup)
-    - [Download](#image_download) or [Build](#image_build) images
-
+    - [Download](#image_download) and/or [Build](#image_build) images
 3. [Usage](#usage)
     - [Models](#models)
     - [Flags](#flags)
@@ -18,23 +16,27 @@
 <a name="supported"></a>
 # Supported images
 
-The following table lists supported Docker images based on Ubuntu 18.04 with TensorFlow 1.14.0.
+The following table lists supported Docker images.
 
 | Image name | Image description | Docker Hub link |
 |-|-|-|
 |`object-detection-tf-py.tf-prebuilt.ubuntu-18.04`| TensorFlow prebuilt for the CPU (installed via pip) | [CPU prebuilt](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-prebuilt.ubuntu-18.04) |
-|`object-detection-tf-py.tf-src.ubuntu-18.04`     | TensorFlow built from sources for the CPU        | [CPU from sources](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-src.ubuntu-18.04) |
+|`object-detection-tf-py.tf-src.ubuntu-18.04`     | TensorFlow built from sources for the CPU           | [CPU from sources](https://hub.docker.com/r/ctuning/object-detection-tf-py.tf-src.ubuntu-18.04)  |
 |`object-detection-tf-py.tensorrt.ubuntu-18.04`   | TensorFlow built from sources for the GPU, with TensorRT support enabled | [CUDA+TensorRT](https://hub.docker.com/r/ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04) |
 
-**NB:** As the prebuilt TensorFlow variant does not support AVX2 instructions, it is advisable to use the TensorFlow variant built from sources on compatible hardware.
+The CPU images are based on the [Ubuntu 18.04 image](https://hub.docker.com/_/ubuntu) from Docker Hub,
+while the GPU image is based on the [TensorRT 19.08 image](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_19-08.html) from NVIDIA
+(which is also based on Ubuntu 18.04).
 
-<a name="prereq"></a>
-# Prerequisites
+All the images include TensorFlow 1.14.0, about a dozen of [object detection models](#models) and the [COCO 2017 dataset](http://cocodataset.org).
+
+<a name="installation"></a>
+# Installation
 
 <a name="setup"></a>
 ## System setup
 
-As our images are based on [nvidia-docker](https://github.com/NVIDIA/nvidia-docker), please follow instructions there to set up your system.
+As our GPU image is based on [nvidia-docker](https://github.com/NVIDIA/nvidia-docker), please follow instructions there to set up your system.
 
 <a name="image_download"></a>
 ## Download images from Docker Hub
@@ -44,7 +46,11 @@ To download an image from Docker Hub, run:
 $ docker pull ctuning/<image_name>
 ```
 where `<image_name>` is the image name from the [table above](#supported).
-    
+
+**NB:** As the prebuilt TensorFlow variant does not support AVX2 instructions, we advise to use the TensorFlow variant built from sources on compatible hardware.
+In fact, as the latter was built on an [HP Z640 workstation](http://h20195.www2.hp.com/v2/default.aspx?cc=ie&lc=en&oid=7528701)
+with an [Intel(R) Xeon(R) CPU E5-2650 v3](https://ark.intel.com/products/81705/Intel-Xeon-Processor-E5-2650-v3-25M-Cache-2_30-GHz) (launched in Q3'14), we advise
+to rebuild the image on your system.
 
 <a name="image_build"></a>
 ## Build images
@@ -67,26 +73,26 @@ $ docker build -f Dockerfile -t ctuning/<image_name> .
 <a name="models"></a>
 ## Models
 
-Our [TensorFlow-Python application](https://github.com/ctuning/ck-tensorflow/blob/master/program/object-detection-tf-py/README.md) supports the following TensorFlow models trained on the COCO 2017 dataset. With the exception of a [TensorFlow reimplementation of YOLO v3](https://github.com/YunYang1994/tensorflow-yolov3), all the models come from the [TensorFlow Object Detection model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md). 
+Our [TensorFlow-Python application](https://github.com/ctuning/ck-tensorflow/blob/master/program/object-detection-tf-py/README.md) supports the following TensorFlow models trained on the COCO 2017 dataset. With the exception of a [TensorFlow reimplementation of YOLO v3](https://github.com/YunYang1994/tensorflow-yolov3), all the models come from the [TensorFlow Object Detection model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md).
 Note that we report the accuracy reference (mAP in %) on the COCO 2017 dataset (5,000 images).
 
-| Model | Unique CK Tags | Is Custom? | mAP in % |
+| Model | Unique CK Tags (`<tags>`) | Is Custom? | mAP in % |
 | --- | --- | --- | --- |
-| [faster\_rcnn\_resnet50\_lowproposals\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) | lowproposal,rcnn,resnet50|  0 |  24.241037|
-| [faster\_rcnn\_resnet101\_lowproposals\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) |lowproposal,rcnn,resnet101|  0 | 32.594327|
-| [faster\_rcnn\_nas\_lowproposals\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| lowproposal,nas,rcnn|       0 |     44.340195|
-| [faster\_rcnn\_inception\_resnet\_v2\_atrous\_lowproposals\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) | inception,lowproposal,rcnn,resnetv2|    0|  36.520117|     
-| [faster\_rcnn\_inception\_v2\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| rcnn,inceptionv2 |               0 |    28.309626|
-| [ssd\_mobilenet\_v1\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| ssd-mobilenet,non-quantized,mlperf |      0 |    23.111170|
-| [ssd\_mobilenet\_v1\_quantized\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) | ssd-mobilenet,quantized |     0 |    23.591693|
-| [ssd\_mobilenet\_v1\_fpn\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| ssd,fpn |                            0 |    35.353170|
-| [ssd\_resnet\_50\_fpn\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)|ssd,resnet50 |                           0 |    38.341120|
-| [ssd\_inception\_v2\_coco ](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| ssd,inceptionv2 |                        0 |    27.765988|
-| [ssdlite\_mobilenet\_v2\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| ssdlite |                             0 |    24.281540|
-| [yolo\_v3\_coco](https://github.com/YunYang1994/tensorflow-yolov3) | yolo | 1|   28.532508|
+| [faster\_rcnn\_resnet50\_lowproposals\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)  | `rcnn,lowproposal,resnet50`  | 0 | 24.241037 |
+| [faster\_rcnn\_resnet101\_lowproposals\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) | `rcnn,lowproposal,resnet101` | 0 | 32.594327 |
+| [faster\_rcnn\_nas\_lowproposals\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)       | `rcnn,lowproposal,nas`       | 0 | 44.340195 |
+| [faster\_rcnn\_inception\_resnet\_v2\_atrous\_lowproposals\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) | `rcnn,lowproposal,inception,resnetv2` | 0 | 36.520117 |
+| [faster\_rcnn\_inception\_v2\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)           | `rcnn,inceptionv2`           | 0 | 28.309626 |
+| [ssd\_mobilenet\_v1\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)            | `ssd-mobilenet,non-quantized,mlperf` | 0 | 23.111170 |
+| [ssd\_mobilenet\_v1\_quantized\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) | `ssd-mobilenet,quantized`            | 0 | 23.591693 |
+| [ssd\_mobilenet\_v1\_fpn\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)       | `ssd,fpn`                            | 0 | 35.353170 |
+| [ssd\_resnet\_50\_fpn\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)          | `ssd,resnet50`                       | 0 | 38.341120 |
+| [ssd\_inception\_v2\_coco ](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)           | `ssd,inceptionv2`                    | 0 | 27.765988 |
+| [ssdlite\_mobilenet\_v2\_coco](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)        | `ssdlite`                            | 0 | 24.281540 |
+| [yolo\_v3\_coco](https://github.com/YunYang1994/tensorflow-yolov3)                                                                             | `yolo`                               | 1 | 28.532508 |
 
-Every model can be selected by adding the `--dep_add_tags.weights=<tags>` flag when running the customized command for the container.
-For example, to run inference on the quantized SSD-MobileNet model, add `--dep_add_tags.weights=ssd-mobilenet,quantized`. To run inference on the YOLO model, add `--dep_add_tags.weights=yolo`, and so on.
+Each model can be selected by adding the `--dep_add_tags.weights=<tags>` flag when running a customized command for the container.
+For example, to run inference on the quantized SSD-MobileNet model, add `--dep_add_tags.weights=ssd-mobilenet,quantized`; to run inference on the YOLO model, add `--dep_add_tags.weights=yolo`; and so on.
 
 <a name="flags"></a>
 ## Other flags
@@ -127,7 +133,7 @@ $ docker run --rm ctuning/object-detection-tf-py.tf-prebuilt.ubuntu-18.04 \
 
 In this case, we are running the same command with a different image, targeting a backend using tensorflow installed with pip.
 
-   
+
 ```bash
 $ docker run --runtime=nvidia --rm ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04 \
     "ck run program:object-detection-tf-py \
@@ -142,7 +148,7 @@ In the last example, we want to run exploiting TensorRT backend, and in particul
 
 ## Benchmark
 <a name="image_benchmark"></a>
-This command allows to run the benchmark in the docker container, and save the result on the host machine. 
+This command allows to run the benchmark in the docker container, and save the result on the host machine.
 Benchmark are a particular functionality of the CK framework that allows to run experiments in a controlled environment.
 
 Parameter explanation:
@@ -153,7 +159,7 @@ volume (-v) is the shared space between the container and the host. you have to 
 ```bash
 $ docker run \
     --runtime=nvidia \
-    --env-file  $PATH_TO_CK_REPO/ck-object-detection/docker/object-detection-tf-py.tensorrt.ubuntu-18.04/env.list \ 
+    --env-file  $PATH_TO_CK_REPO/ck-object-detection/docker/object-detection-tf-py.tensorrt.ubuntu-18.04/env.list \
     --user=$(id -u):1500 \
     -v$PATH_TO_TARGET_FOLDER:/home/dvdt/CK_REPOS/local/experiment \
     --rm \
@@ -161,13 +167,13 @@ $ docker run \
         "ck benchmark program:object-detection-tf-py \
         --repetitions=1 \
         --env.CK_BATCH_SIZE=1 \
-        --env.CK_BATCH_COUNT=50 \ 
+        --env.CK_BATCH_COUNT=50 \
         --env.CK_METRIC_TYPE=COCO \
         --record \
         --record_repo=local \
         --record_uoa=mlperf-object-detection-ssd-mobilenet-quantized-tf-py-accuracy \
 	--dep_add_tags.weights=ssd-mobilenet,quantized \
-        --tags=mlperf,object-detection,ssd-mobilenet,tf-py,accuracy,quantized" 
+        --tags=mlperf,object-detection,ssd-mobilenet,tf-py,accuracy,quantized"
 ```
 
 where the number of repetitions can be changed in order to create a statistically valid number of experiments
@@ -175,3 +181,6 @@ the record\_uoa is a unique identifier used to build experiments and must not ov
 the tags can be used to identify the experiment, and to organize experiments
 the --record and --record\_repo=local must NOT be changed, since they are part of the setup to have the results saved in the mounted volume.
 
+## Explore
+
+...

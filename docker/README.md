@@ -152,7 +152,7 @@ For example, to run inference on the quantized SSD-MobileNet model, add `--dep_a
 | `--env.CK_BATCH_COUNT`      | positive integer | 1 | Specifies the number of batches to be processed. |
 | `--env.CK_ENABLE_TENSORRT`  | 0,1              | 0 | Enables the TensorRT backend (only to be used on the TensorRT image). |
 | `--env.CK_TENSORRT_DYNAMIC` | 0,1              | 0 | Enables the [TensorRT dynamic mode](https://docs.nvidia.com/deeplearning/frameworks/tf-trt-user-guide/index.html#static-dynamic-mode). |
-| `--env.CK_ENV_IMAGE_WIDTH`, `--env.CK_ENV_IMAGE_HEIGHT` | positive integer | Model-specific (set by CK) | These parameters can be used to resize at runtime the input images to a different size than the default for the model. This usually decreases the accuracy. |
+| `--env.CK_ENV_IMAGE_WIDTH`, `--env.CK_ENV_IMAGE_HEIGHT` | positive integer | Model-specific (set by CK) | These parameters can be used to resize at runtime the input images to a different size than the default size for the model. (This usually decreases the accuracy.) |
 
 
 <a name="benchmark"></a>
@@ -193,9 +193,20 @@ $ docker run --runtime=nvidia \
 - `--record`, `--record_repo=local`: must be present to have the results saved in the mounted volume.
 - `--record_uoa`: a unique name for each CK experiment entry; here, `object-detection-tf-py` (the name of the program) is the same for all experiments, `ssd-mobilenet-quantized` is unique for each model, `accuracy` indicates the accuracy mode.
 - `--tags`: specify the tags for each CK experiment entry; we typically make them similar to the experiment entry name.
+- `--dep_add_tags.weights`: specify the tags [for each model](#models).
 
 
 <a name="explore"></a>
 ## Explore design space
 
-**TODO**
+Putting this all together, we provide two shell scripts that launch full design space exploration in the accuracy mode (`--repetitions=1`) and the performance mode (`--repetitions=10`) with the corresponding experiment names and tags:
+- over the CPU and GPU images;
+- for the GPU image, over using CUDA, TensorRT with the dynamic mode disabled and TensorRT with the dynamic mode enabled;
+- over all the object detection [models](#models);
+- in the performance mode, over several batch sizes (1, 2, 4, 8, 16).
+
+The scripts can be found under:
+```
+$ ck find script:<script_name>
+```
+where `<script_name>` is either ... or ...

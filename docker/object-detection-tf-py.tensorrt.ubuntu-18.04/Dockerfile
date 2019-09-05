@@ -162,7 +162,7 @@ RUN ck install package --tags=ssd,resnet50\
 # && ck install package --tags=model,tf,object-detection,yolo
 #-----------------------------------------------------------------------------#
 
-# Allow to create tmp files.
+# Allow the Object Detection TF-Python program create tmp files.
 RUN chmod -R 775 ${CK_REPOS}/ck-tensorflow/program/object-detection-tf-py/
 
 # Run the Object Detection TF-Python program

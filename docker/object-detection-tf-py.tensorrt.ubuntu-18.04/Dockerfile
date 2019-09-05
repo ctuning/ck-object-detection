@@ -109,6 +109,7 @@ RUN ck detect soft:compiler.cuda --full_path=/usr/local/cuda-10.1/bin/nvcc \
 RUN ck install ck-env:package:jdk-8u131-universal
 RUN ck install ck-env:package:tool-bazel-0.25.2-linux
 # Build TF from sources, enabling TensorRT support. Remove the Bazel cache (~16 GB) once done.
+# FIXME: Use '--tags=lib,tensorflow,vsrc,vcuda,v1.14'. TODO: Install prebuilt TF.
 RUN ck install package --tags=lib,tensorflow-cuda,vsrc,v1.14 --env.CK_TF_NEED_TENSORRT="YES"\
  && rm -rf ~/.cache/bazel
 #-----------------------------------------------------------------------------#
@@ -127,9 +128,28 @@ RUN echo | ck install package --tags=object-detection,dataset,coco.2017,val,orig
 #-----------------------------------------------------------------------------#
 # Step 3. Install the object detection models.
 #-----------------------------------------------------------------------------#
-# FIXME: Install all by unique tags.
-RUN ck install package:tensorflowmodel-object-detection-ssd-resnet50-v1-fpn-sbp-640x640-coco
-RUN ck install package --tags=model,tf,object-detection,mlperf,ssd-mobilenet,quantized,finetuned
+# Pull all repos. FIXME: Will not be needed when we stabilize all names and tags.
+RUN ck pull all
+
+# Install TF model API, but remove useless API files to free up space.
+# FIXME: Do any of the models really depend on the TF model API?
+RUN ck install package --tags=model,tensorflow,api\
+ && ck virtual env --tags=tensorflow,api --shell_cmd=\
+'cd $CK_ENV_TENSORFLOW_MODELS;\
+ mv object_detection ..;\
+ rm * -r;\
+ mv ../object_detection .;\
+ cd ..;\
+ rm official -rf;\
+ rm samples -rf;\
+ rm tutorials -rf;\
+ rm .git -rf'
+
+RUN ck install package --tags=ssd,resnet50\
+ && ck install package --tags=ssd,mobilenet,non-quantized,mlperf,tf\
+ && ck install package --tags=ssd,mobilenet,quantized,mlperf,tf
+
+# FIXME: Install all by unique tags once they are all updated.
 RUN ck install package:ssd-mobilenetv1-fpn-shared-box-predictor           \
  && ck install package:faster-rcnn-nas                                    \
  && ck install package:faster-rcnn-nas-lowproposal                        \

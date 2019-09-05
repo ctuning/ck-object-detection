@@ -164,8 +164,8 @@ You can use `ck benchmark` to save the result on the host system as CK experimen
 ```bash
 $ docker run --runtime=nvidia \
     --env-file `ck find docker:object-detection-tf-py.tensorrt.ubuntu-18.04`/env.list \
+    --volume=<folder_for_results>:/home/dvdt/CK_REPOS/local/experiment \
     --user=$(id -u):1500 \
-    --volume=<path_to_folder_with_results>:/home/dvdt/CK_REPOS/local/experiment \
     --rm ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04 \
         "ck benchmark program:object-detection-tf-py \
         --env.CK_BATCH_COUNT=50 \
@@ -182,8 +182,18 @@ $ docker run --runtime=nvidia \
 ### Docker parameters
 
 - `--env-file`: the path to the `env.list` file, which is usually located in the same folder as the Dockerfile. (Currently, the `env.list` files are identical for all the images.)
-- `--user`: your user id on the host system and a fixed group id (1500) needed to access files in the container.
 - `--volume`: a folder with read/write permissions for the user that serves as shared space ("volume") between the host and the container.
+- `--user`: your user id on the host system and a fixed group id (1500) needed to access files in the container.
+
+#### Gory details
+
+We ask you to launch a container with `--user=$(id -u):1500`, where `$(id -u)` gives your
+user id on the host system and `1500` is the fixed group id of the `dvdtg` group in the image.
+We also ask you to mount a folder with read/write permissions with `--volume=<folder_for_results>`.
+This folder gets mapped to the `/home/dvdt/CK_REPOS/local/experiment` folder in the image.
+While the `experiment` folder belongs to the `dvdt` user, it is made accessible to the `dvdtg` group.
+Therefore, you can retrieve the results of a container run under your user id from this folder.
+
 
 <a name="parameters_ck"></a>
 ### CK parameters

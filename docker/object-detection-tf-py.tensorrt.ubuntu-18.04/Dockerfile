@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/tensorrt:19.08-py3
+FROM nvcr.io/nvidia/tensorrt:19.07-py3
 
 LABEL maintainer="Anton Lokhmotov <anton@dividiti.com>"
 
@@ -12,7 +12,6 @@ ENTRYPOINT ["/bin/bash", "-c"]
 # CK needs: git, wget, zip.
 # TF needs: curl.
 # TensorFlow Object Detection API needs ProtoBuf 3.0 which needs CMake.
-# openCV needs libsm6,libxext6 and libxrender-dev
 RUN apt update -y\
  && apt install -y apt-utils\
  && apt upgrade -y\
@@ -22,14 +21,14 @@ RUN apt update -y\
  cmake\
  python3 python3-pip\
  vim\
- libsm6 libxext6 libxrender-dev\
  && apt clean
 
-# Create non-root user.
-RUN groupadd -g 1500 dvdt
-RUN useradd -u 2000 --create-home -g 1500 --shell /bin/bash dvdt
-#NTS not sure the benchmark will still be able to write if the gid doesn't match, but its worth a try.
-USER dvdt:dvdt
+# Create a non-root user with a fixed group id 1500 and a fixed user id 2000.
+# See the README for the gory details.
+# FIXME: Don't need a fixed user id?
+RUN groupadd -g 1500 dvdtg
+RUN useradd -u 2000 -g dvdtg --create-home --shell /bin/bash dvdt
+USER dvdt:dvdtg
 WORKDIR /home/dvdt
 
 # Install Collective Knowledge (CK).
@@ -37,23 +36,29 @@ ENV CK_ROOT=/home/dvdt/CK \
     CK_REPOS=/home/dvdt/CK_REPOS \
     CK_TOOLS=/home/dvdt/CK_TOOLS \
     PATH=${CK_ROOT}/bin:/home/dvdt/.local/bin:${PATH} \
-    CK_PYTHON=python3 \
     CK_CC=gcc \
+    CK_PYTHON=python3 \
     GIT_USER="dividiti" \
     GIT_EMAIL="info@dividiti.com" \
     LANG=C.UTF-8
 RUN mkdir -p ${CK_ROOT} ${CK_REPOS} ${CK_TOOLS}
 RUN git config --global user.name ${GIT_USER} && git config --global user.email ${GIT_EMAIL}
 RUN git clone https://github.com/ctuning/ck.git ${CK_ROOT}
-RUN cd ${CK_ROOT} \
- && ${CK_PYTHON} setup.py install --user \
- && ${CK_PYTHON} -c "import ck.kernel as ck; print ('Collective Knowledge v%s' % ck.__version__)"
+RUN cd ${CK_ROOT}\
+ && ${CK_PYTHON} setup.py install --user\
+ && ${CK_PYTHON} -c "import ck.kernel as ck; print ('Collective Knowledge v%s' % ck.__version__)"\
+ && chmod -R 755 ~/.local
+# FIXME: Presumably this is where the ck executable is. Can't we just make it group-executable?
 
+# Explicitly create a CK experiment entry, a folder that will be mounted
+# (with '--volume=<folder_for_results>:/home/dvdt/CK_REPOS/local/experiment').
+# as a shared volume between the host and the container, and make it group-writable.
+RUN ck create_entry --data_uoa=experiment --path=${CK_REPOS}/local\
+ && chmod -R 775 ${CK_REPOS}/local/experiment
 
-RUN ck pull repo:ck-tensorflow --url=https://github.com/me2x/ck-tensorflow.git
-# Pull CK repositories (including ck-env, ck-autotuning and ck-tensorflow).
-RUN ck pull repo:ck-mlperf \
-&& ck pull repo:ck-object-detection 
+# Pull CK repositories (including ck-mlperf, ck-env, ck-autotuning, ck-tensorflow, ck-docker).
+RUN ck pull repo:ck-object-detection
+
 # Use generic Linux settings with dummy frequency setting scripts.
 RUN ck detect platform.os --platform_init_uoa=generic-linux-dummy
 
@@ -65,15 +70,19 @@ RUN ck detect soft:compiler.python --full_path=`which ${CK_PYTHON}`
 # Install the latest Python package installer (pip) and some dependencies.
 RUN ${CK_PYTHON} -m pip install --ignore-installed pip setuptools --user
 
-# Install Python dependencies.
+
+#-----------------------------------------------------------------------------#
+# Step 0. Install the Python dependencies.
+#-----------------------------------------------------------------------------#
 RUN ck install package --tags=lib,python-package,numpy
+# FIXME: No longer need to use a fixed version of SciPy?
 RUN ck install package --tags=lib,python-package,scipy --force_version=1.2.1
 RUN ck install package --tags=lib,python-package,pillow
 RUN ck install package --tags=lib,python-package,matplotlib
 RUN ck install package --tags=lib,python-package,cython
-RUN ck install package --tags=lib,python-package,cv2
+RUN ck install package --tags=lib,python-package,cv2,opencv-python-headless
 RUN ck show env --tags=python-package
-
+# Install TF dependencies that currently have no CK packages.
 RUN ${CK_PYTHON} -m pip install gast --user
 RUN ${CK_PYTHON} -m pip install protobuf --user
 RUN ${CK_PYTHON} -m pip install absl-py --user
@@ -84,69 +93,59 @@ RUN ${CK_PYTHON} -m pip install tensorflow-estimator==1.14.0 --user
 RUN ${CK_PYTHON} -m pip install keras_applications==1.0.6 --no-deps --user
 RUN ${CK_PYTHON} -m pip install keras_preprocessing==1.0.5 --no-deps --user
 # Install Python COCO API.
+RUN ck detect soft --tags=cmake --full_path=/usr/local/bin/cmake
 RUN ck install package --tags=tool,coco,api
+#-----------------------------------------------------------------------------#
 
 
-#TF second
-# Install TF.
-# Detect CUDA deps
+#-----------------------------------------------------------------------------#
+# Step 1. Install the TensorFlow v1.14 framework.
+#-----------------------------------------------------------------------------#
+# Detect CUDA deps.
 RUN ck detect soft:compiler.cuda --full_path=/usr/local/cuda-10.1/bin/nvcc \
  && ck detect soft:lib.cudnn \
  && ck detect soft:lib.cublas --full_path=/usr/lib/x86_64-linux-gnu/libcublas.so
-
-#Install CK deps
+# Install CK deps.
 RUN ck install ck-env:package:jdk-8u131-universal
 RUN ck install ck-env:package:tool-bazel-0.25.2-linux
-#install TF from src, enabling tensorrt, clean the cache that is 16GB
-RUN ck install package --tags=lib,tensorflow-cuda,v1.14,vsrc --env.CK_TF_NEED_TENSORRT="YES" && rm ~/.cache -rf
+# Build TF from sources, enabling TensorRT support. Remove the Bazel cache (~16 GB) once done.
+RUN ck install package --tags=lib,tensorflow-cuda,vsrc,v1.14 --env.CK_TF_NEED_TENSORRT="YES"\
+ && rm -rf ~/.cache/bazel
+#-----------------------------------------------------------------------------#
 
-#Dataset first normally. since here it does not share anything, maybe move after TF will let us reuse the space from .cache after removal
-# Download the COCO 2017 validation dataset (5,000 images) to the default path;
+
+#-----------------------------------------------------------------------------#
+# Step 2. Install the COCO 2017 validation dataset (5,000 images).
+#-----------------------------------------------------------------------------#
+# Download the dataset to the default path. Remove all training annotations (~765 MB).
 RUN echo | ck install package --tags=object-detection,dataset,coco.2017,val,original,full\
  && ck virtual env --tags=object-detection,dataset,coco.2017,val,original,full --shell_cmd=\
 'rm $CK_ENV_DATASET_COCO_LABELS_DIR/*train2017.json'
+#-----------------------------------------------------------------------------#
 
 
-
-RUN ck detect soft --tags=cmake --full_path=/usr/local/bin/cmake
-#Models third
-# Download the SSD-ResNet50 TF model.
+#-----------------------------------------------------------------------------#
+# Step 3. Install the object detection models.
+#-----------------------------------------------------------------------------#
+# FIXME: Install all by unique tags.
 RUN ck install package:tensorflowmodel-object-detection-ssd-resnet50-v1-fpn-sbp-640x640-coco
-# Download the SSD-MobileNet TF models (non-quantized and quantized).
-#RUN ck install package --tags=model,tf,object-detection,mlperf,ssd-mobilenet,non-quantized
 RUN ck install package --tags=model,tf,object-detection,mlperf,ssd-mobilenet,quantized,finetuned
-RUN ck install package:ssd-mobilenetv1-fpn-shared-box-predictor \
-&&  ck install package:faster-rcnn_inception-resnet_v2-atrous-lowproposal \
-&&  ck install package:faster-rcnn-nas-lowproposal                        \
-&&  ck install package:faster-rcnn-resnet50-lowproposal                   \
-&&  ck install package:faster-rcnn-nas                                    \ 
-&&  ck install package:faster-rcnn-resnet101-lowproposal                  \
-&&  ck install package --tags=model,tf,object-detection,ssd,inceptionv2   \
-&&  ck install package --tags=model,tf,object-detection,ssdlite           \
-&&  ck install package --tags=model,tf,object-detection,rcnn,inceptionv2  \
-&&  ck install package --tags=model,tf,object-detection,yolo      
-
-#Last step
-#change dependencies to support "external" benchmarking. 
-#we want to launch the container with a volume attached to it, and the permission to write that volume will be of the user on the host machine.
-#the dvdt user in the docker container will NOT be able to write there.
-#launching the docker container with --user=$(id -u):$(id -g) allows to be the user in the docker container. 
-#However, the user cannot read/write by default the dvdt userspace. 
-#For this reason we have to change the permission to the dvdt userspace.
-#note that this step allows to have the result, on the mounted volume, as if they were created by the user, after the end of the container run.
-RUN chmod -R 755 ~/.local
-#RUN chmod -R 777 ~/CK
-RUN chmod -R 775 ~/CK_REPOS
-#RUN chmod -R 777 ~/CK_TOOLS
-
-
-#entry for the experiment folder, that will be mounted as a shared volume between dockerspace and hostspace ( -v$FULL_PATH_OF_THE_TARGET_FOLDER:/home/dvdt/CK_REPOS/local/experiment) 
-#In this way it is possible to save the benchmarking outside the container and keep all the results
-RUN ck create_entry --path=/home/dvdt/CK_REPOS/local --data_uoa=experiment
+RUN ck install package:ssd-mobilenetv1-fpn-shared-box-predictor           \
+ && ck install package:faster-rcnn-nas                                    \
+ && ck install package:faster-rcnn-nas-lowproposal                        \
+ && ck install package:faster-rcnn-resnet50-lowproposal                   \
+ && ck install package:faster-rcnn-resnet101-lowproposal                  \
+ && ck install package:faster-rcnn_inception-resnet_v2-atrous-lowproposal \
+ && ck install package --tags=model,tf,object-detection,ssd,inceptionv2   \
+ && ck install package --tags=model,tf,object-detection,ssdlite           \
+ && ck install package --tags=model,tf,object-detection,rcnn,inceptionv2  \
+ && ck install package --tags=model,tf,object-detection,yolo
+#-----------------------------------------------------------------------------#
 
 
 # Run the Object Detection TF-Python program
-# with the non-quantized SSD-MobileNet model 
+# with the non-quantized SSD-MobileNet model
 # on the first 50 images of the COCO 2017 validation dataset.
-# weigths can be: resnet50, quantized, non-quantized
-CMD ["ck run program:object-detection-tf-py --env.CK_BATCH_COUNT=50 --dep_add_tags.weights=ssd-mobilenet,non-quantized"]
+CMD ["ck run program:object-detection-tf-py \
+--dep_add_tags.weights=ssd-mobilenet,non-quantized \
+--env.CK_BATCH_COUNT=50"]

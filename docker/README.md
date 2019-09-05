@@ -153,6 +153,7 @@ For example, to run inference on the quantized SSD-MobileNet model, add `--dep_a
 | `--env.CK_ENABLE_TENSORRT`  | 0,1              | 0 | Enables the TensorRT backend (only to be used on the TensorRT image). |
 | `--env.CK_TENSORRT_DYNAMIC` | 0,1              | 0 | Enables the [TensorRT dynamic mode](https://docs.nvidia.com/deeplearning/frameworks/tf-trt-user-guide/index.html#static-dynamic-mode). |
 | `--env.CK_ENV_IMAGE_WIDTH`, `--env.CK_ENV_IMAGE_HEIGHT` | positive integer | Model-specific (set by CK) | These parameters can be used to resize at runtime the input images to a different size than the default size for the model. (This usually decreases the accuracy.) |
+| `--env.CUDA_VISIBLE_DEVICES`| list of integers | N/A | Specifies which GPUs TF should use. Forces TF to use the CPU when `--env.CUDA_VISIBLE_DEVICES=-1`. |
 
 
 <a name="benchmark"></a>
@@ -167,7 +168,7 @@ $ docker run --runtime=nvidia \
     --volume=<folder_for_results>:/home/dvdt/CK_REPOS/local/experiment \
     --user=$(id -u):1500 \
     --rm ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04 \
-        "ck benchmark program:object-detection-tf-py \
+    "ck benchmark program:object-detection-tf-py \
         --env.CK_BATCH_COUNT=50 \
         --repetitions=1 \
         --record \
@@ -175,7 +176,7 @@ $ docker run --runtime=nvidia \
         --record_uoa=object-detection-tf-py-ssd-mobilenet-quantized-accuracy \
         --tags=object-detection,tf-py,ssd-mobilenet,quantized,accuracy \
         --dep_add_tags.weights=ssd-mobilenet,quantized \
-        "
+    "
 ```
 
 <a name="parameters_docker"></a>

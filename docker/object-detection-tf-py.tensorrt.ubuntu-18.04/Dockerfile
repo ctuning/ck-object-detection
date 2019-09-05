@@ -134,7 +134,7 @@ RUN ck pull all
 # Install TF model API, but remove useless API files to free up space.
 # FIXME: Do any of the models really depend on the TF model API?
 RUN ck install package --tags=model,tensorflow,api\
- && ck virtual env --tags=tensorflow,api --shell_cmd=\
+ && ck virtual env --tags=model,tensorflow,api --shell_cmd=\
 'cd $CK_ENV_TENSORFLOW_MODELS;\
  mv object_detection ..;\
  rm * -r;\
@@ -149,19 +149,21 @@ RUN ck install package --tags=ssd,resnet50\
  && ck install package --tags=ssd,mobilenet,non-quantized,mlperf,tf\
  && ck install package --tags=ssd,mobilenet,quantized,mlperf,tf
 
-# FIXME: Install all by unique tags once they are all updated.
-RUN ck install package:ssd-mobilenetv1-fpn-shared-box-predictor           \
- && ck install package:faster-rcnn-nas                                    \
- && ck install package:faster-rcnn-nas-lowproposal                        \
- && ck install package:faster-rcnn-resnet50-lowproposal                   \
- && ck install package:faster-rcnn-resnet101-lowproposal                  \
- && ck install package:faster-rcnn_inception-resnet_v2-atrous-lowproposal \
- && ck install package --tags=model,tf,object-detection,ssd,inceptionv2   \
- && ck install package --tags=model,tf,object-detection,ssdlite           \
- && ck install package --tags=model,tf,object-detection,rcnn,inceptionv2  \
- && ck install package --tags=model,tf,object-detection,yolo
+## FIXME: Install all by unique tags once they are all updated.
+#RUN ck install package:ssd-mobilenetv1-fpn-shared-box-predictor           \
+# && ck install package:faster-rcnn-nas                                    \
+# && ck install package:faster-rcnn-nas-lowproposal                        \
+# && ck install package:faster-rcnn-resnet50-lowproposal                   \
+# && ck install package:faster-rcnn-resnet101-lowproposal                  \
+# && ck install package:faster-rcnn_inception-resnet_v2-atrous-lowproposal \
+# && ck install package --tags=model,tf,object-detection,ssd,inceptionv2   \
+# && ck install package --tags=model,tf,object-detection,ssdlite           \
+# && ck install package --tags=model,tf,object-detection,rcnn,inceptionv2  \
+# && ck install package --tags=model,tf,object-detection,yolo
 #-----------------------------------------------------------------------------#
 
+# Allow to create tmp files.
+RUN chmod -R 775 ${CK_REPOS}/ck-tensorflow/program/object-detection-tf-py/
 
 # Run the Object Detection TF-Python program
 # with the non-quantized SSD-MobileNet model

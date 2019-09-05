@@ -1,0 +1,15 @@
+{
+  "backup_data_uid": "4214ad911ef4c27d",
+  "backup_module_uid": "1dc07ee0f4742028",
+  "backup_module_uoa": "package",
+  "control": {
+    "engine": "CK",
+    "iso_datetime": "2019-07-16T15:43:38.575856",
+    "version": [
+      "1",
+      "10",
+      "3"
+    ]
+  },
+  "data_name": "model-tf-ssdlite-mobilenetv2-coco"
+}

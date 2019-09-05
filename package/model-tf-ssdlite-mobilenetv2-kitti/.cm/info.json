@@ -1,0 +1,16 @@
+{
+  "backup_data_uid": "45ed13bcc31c47b6",
+  "backup_module_uid": "1dc07ee0f4742028",
+  "backup_module_uoa": "package",
+  "control": {
+    "engine": "CK",
+    "iso_datetime": "2019-08-07T17:14:40.051015",
+    "version": [
+      "1",
+      "9",
+      "8",
+      "1"
+    ]
+  },
+  "data_name": "model-tf-ssdlite-mobilenetv2-kitti"
+}

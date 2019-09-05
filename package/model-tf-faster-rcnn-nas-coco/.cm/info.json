@@ -1,0 +1,16 @@
+{
+  "backup_data_uid": "ec32e4a0ead6dfad",
+  "backup_module_uid": "1dc07ee0f4742028",
+  "backup_module_uoa": "package",
+  "control": {
+    "engine": "CK",
+    "iso_datetime": "2019-07-05T14:25:36.285918",
+    "version": [
+      "1",
+      "9",
+      "8",
+      "1"
+    ]
+  },
+  "data_name": "model-tf-faster-rcnn-nas-coco"
+}

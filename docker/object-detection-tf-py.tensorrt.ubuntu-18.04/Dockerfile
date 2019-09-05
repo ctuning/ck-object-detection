@@ -109,7 +109,7 @@ RUN ck detect soft:compiler.cuda --full_path=/usr/local/cuda-10.1/bin/nvcc \
 RUN ck install ck-env:package:jdk-8u131-universal
 RUN ck install ck-env:package:tool-bazel-0.25.2-linux
 # Build TF from sources, enabling TensorRT support. Remove the Bazel cache (~16 GB) once done.
-# FIXME: Use '--tags=lib,tensorflow,vsrc,vcuda,v1.14'. TODO: Install prebuilt TF.
+# FIXME: Use '--tags=lib,tensorflow,vsrc,vcuda,v1.14'.
 RUN ck install package --tags=lib,tensorflow-cuda,vsrc,v1.14 --env.CK_TF_NEED_TENSORRT="YES"\
  && rm -rf ~/.cache/bazel
 #-----------------------------------------------------------------------------#
@@ -164,6 +164,9 @@ RUN ck install package --tags=ssd,resnet50\
 
 # Allow the Object Detection TF-Python program create tmp files.
 RUN chmod -R 775 ${CK_REPOS}/ck-tensorflow/program/object-detection-tf-py/
+
+# FIXME: Move next to the TF-CUDA installation from sources.
+RUN ck install package --tags=lib,tensorflow,vcpu,vprebuilt,v1.14
 
 # Run the Object Detection TF-Python program
 # with the non-quantized SSD-MobileNet model

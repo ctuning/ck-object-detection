@@ -3,7 +3,12 @@
   "data_name": "ck-object-detection", 
   "dict": {
     "url": "https://github.com/ctuning/ck-object-detection", 
-    "shared": "git"
+    "shared": "git",
+    "repo_deps": [
+      {
+        "repo_uoa": "ck-mlperf"
+      }
+    ]
   }, 
   "data_alias": "ck-object-detection", 
   "data_uoa": "ck-object-detection"

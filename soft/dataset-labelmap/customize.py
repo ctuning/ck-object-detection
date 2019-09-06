@@ -59,7 +59,7 @@ def setup(i):
     install_env = cus.get('install_env', {})
 
     # Init common variables, they are expected to be set for all models
-    env[ep+'_LABELMAP_FILE'] = os.path.join(install_dir, install_env['LABELMAP_FILE'])
+    env[ep+'_FILE'] = os.path.join(install_dir, install_env['LABELMAP_FILE'])
 
 
     return {'return': 0, 'bat': ''}

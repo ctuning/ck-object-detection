@@ -126,18 +126,18 @@ Note that we report the accuracy reference (mAP in %) on the COCO 2017 validatio
 
 | Model | Unique CK Tags (`<tags>`) | Is Custom? | mAP in % |
 | --- | --- | --- | --- |
-| [`faster_rcnn_nas_lowproposals_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)       | `rcnn,nas,lowproposals,vcoco`  | 0 | 44.340195 |
-| [`faster_rcnn_resnet50_lowproposals_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)  | `rcnn,resnet50,lowproposals`   | 0 | 24.241037 |
-| [`faster_rcnn_resnet101_lowproposals_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) | `rcnn,resnet101,lowproposals`  | 0 | 32.594327 |
+| [`faster_rcnn_nas_lowproposals_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)       | `rcnn,nas,lowproposals,vcoco`     | 0 | 44.340195 |
+| [`faster_rcnn_resnet50_lowproposals_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)  | `rcnn,resnet50,lowproposals`      | 0 | 24.241037 |
+| [`faster_rcnn_resnet101_lowproposals_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) | `rcnn,resnet101,lowproposals`     | 0 | 32.594327 |
 | [`faster_rcnn_inception_resnet_v2_atrous_lowproposals_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) | `rcnn,inception-resnet-v2,lowproposals` | 0 | 36.520117 |
-| [`faster_rcnn_inception_v2_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)           | `rcnn,inception-v2`            | 0 | 28.309626 |
-| [`ssd_inception_v2_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)          | `ssd,inception-v2`                      | 0 | 27.765988 |
-| [`ssd_mobilenet_v1_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)          | `ssd,mobilenet-v1,non-quantized,mlperf` | 0 | 23.111170 |
-| [`ssd_mobilenet_v1_quantized_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| `ssd,mobilenet-v1,quantized,mlperf`     | 0 | 23.591693 |
-| [`ssd_mobilenet_v1_fpn_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)      | `ssd,mobilenet-v1,fpn`                  | 0 | 35.353170 |
-| [`ssd_resnet_50_fpn_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)         | `ssd,resnet50,fpn`                      | 0 | 38.341120 |
-| [`ssdlite_mobilenet_v2_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)      | `ssdlite,mobilenet-v2,vcoco`            | 0 | 24.281540 |
-| [`yolo_v3_coco`](https://github.com/YunYang1994/tensorflow-yolov3)                                                                          | `yolo-v3`                               | 1 | 28.532508 |
+| [`faster_rcnn_inception_v2_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)           | `rcnn,inception-v2`               | 0 | 28.309626 |
+| [`ssd_inception_v2_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)          | `ssd,inception-v2`                         | 0 | 27.765988 |
+| [`ssd_mobilenet_v1_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)          | `ssd,mobilenet-v1,non-quantized,mlperf,tf` | 0 | 23.111170 |
+| [`ssd_mobilenet_v1_quantized_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)| `ssd,mobilenet-v1,quantized,mlperf,tf`     | 0 | 23.591693 |
+| [`ssd_mobilenet_v1_fpn_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)      | `ssd,mobilenet-v1,fpn`                     | 0 | 35.353170 |
+| [`ssd_resnet_50_fpn_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)         | `ssd,resnet50,fpn`                         | 0 | 38.341120 |
+| [`ssdlite_mobilenet_v2_coco`](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)      | `ssdlite,mobilenet-v2,vcoco`               | 0 | 24.281540 |
+| [`yolo_v3_coco`](https://github.com/YunYang1994/tensorflow-yolov3)                                                                          | `yolo-v3`                                  | 1 | 28.532508 |
 
 Each model can be selected by adding the `--dep_add_tags.weights=<tags>` flag when running a customized command for the container.
 For example, to run inference on the quantized SSD-MobileNet model, add `--dep_add_tags.weights=ssd-mobilenet,quantized`; to run inference on the YOLO model, add `--dep_add_tags.weights=yolo`; and so on.

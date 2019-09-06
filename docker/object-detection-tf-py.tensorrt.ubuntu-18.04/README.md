@@ -96,12 +96,13 @@ $ docker run --rm ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04 \
     "
 ```
 Here, we run inference on 50 images on the CPU using the quantized SSD-MobileNet model.
+
 **NB:** This is equivalent to the default run command:
 ```bash
 $ ck run docker:object-detection-tf-py.tensorrt.ubuntu-18.04
 ```
 
-To perform inference on the GPU, add the `--runtime=nvidia` flag:
+To run inference on the GPU, add the `--runtime=nvidia` flag:
 
 ```bash
 $ docker run --runtime=nvidia --rm ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04 \
@@ -169,14 +170,14 @@ $ docker run --runtime=nvidia \
     --user=$(id -u):1500 \
     --rm ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04 \
     "ck benchmark program:object-detection-tf-py \
+        --dep_add_tags.lib-tensorflow=vsrc \
+        --dep_add_tags.weights=ssd-mobilenet,quantized \
         --env.CK_BATCH_COUNT=50 \
         --repetitions=1 \
         --record \
         --record_repo=local \
         --record_uoa=object-detection-tf-py-ssd-mobilenet-quantized-accuracy \
         --tags=object-detection,tf-py,ssd-mobilenet,quantized,accuracy \
-        --dep_add_tags.weights=ssd-mobilenet,quantized \
-        --dep_add_tags.lib-tensorflow=vsrc \
     "
 ```
 
@@ -200,13 +201,13 @@ Therefore, you can retrieve the results of a container run under your user id fr
 <a name="parameters_ck"></a>
 ### CK parameters
 
+- `--dep_add_tags.lib-tensorflow`: specify `vsrc` to use TensorFlow built from sources controlling its execution via [flags](#flags) and `vprebuilt` to use prebuilt TensorFlow on the CPU.
+- `--dep_add_tags.weights`: specify the tags for a particular [model](#models).
 - `--env.CK_BATCH_COUNT`: the number of batches to be processed; assuming `--env.CK_BATCH_SIZE=1`, we typically use `--env.CK_BATCH_COUNT=5000` for experiments that measure accuracy over the COCO 2017 validation set and e.g. `--env.CK_BATCH_COUNT=2` for experiments that measure performance. (With TensorFlow, the first batch is usually slower than all subsequent batches. Therefore, its execution time has to be discarded. The execution times of subsequent batches will be averaged.)
 - `--repetitions`: the number of times to run an experiment (3 by default); we typically use `--repetitions=1` for experiments that measure accuracy and e.g. `--repetitions=10` for experiments that measure performance.
 - `--record`, `--record_repo=local`: must be present to have the results saved in the mounted volume.
 - `--record_uoa`: a unique name for each CK experiment entry; here, `object-detection-tf-py` (the name of the program) is the same for all experiments, `ssd-mobilenet-quantized` is unique for each model, `accuracy` indicates the accuracy mode.
 - `--tags`: specify the tags for each CK experiment entry; we typically make them similar to the experiment entry name.
-- `--dep_add_tags.weights`: specify the tags [for each model](#models).
-- `--dep_add_tags.lib-tensorflow`: specify `vsrc` to use TensorFlow built from sources controlling its execution via [flags](#flags) and `vprebuilt` to use prebuilt TensorFlow on the CPU.
 
 
 <a name="explore"></a>

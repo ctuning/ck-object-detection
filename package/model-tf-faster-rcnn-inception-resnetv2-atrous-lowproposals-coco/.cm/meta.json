@@ -24,7 +24,7 @@
     "labelmap": {
       "local": "yes",
       "name": "Labelmap for COCO dataset",
-      "tags": "labelmap,coco"
+      "tags": "labelmap,vcoco"
     }
   },
   "end_full_path": {

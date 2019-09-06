@@ -1,0 +1,3 @@
+program/*/tmp/
+program/*/__pycache__/
+jnotebook/*/.ipynb_checkpoints/

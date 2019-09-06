@@ -96,6 +96,10 @@ $ docker run --rm ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04 \
     "
 ```
 Here, we run inference on 50 images on the CPU using the quantized SSD-MobileNet model.
+**NB:** This is equivalent to the default run command:
+```bash
+$ ck run docker:object-detection-tf-py.tensorrt.ubuntu-18.04
+```
 
 To perform inference on the GPU, add the `--runtime=nvidia` flag:
 

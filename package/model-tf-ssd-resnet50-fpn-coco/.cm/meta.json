@@ -21,10 +21,10 @@
     "version": "20180703"
   },
   "deps": {
-    "tensorflow-model-api": {
+    "labelmap": {
       "local": "yes",
-      "name": "Tensorflow models api",
-      "tags": "tensorflow,model,api"
+      "name": "Labelmap for COCO dataset",
+      "tags": "labelmap,vcoco"
     }
   },
   "end_full_path": {

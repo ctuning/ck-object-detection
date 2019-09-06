@@ -168,9 +168,10 @@ RUN chmod -R 775 ${CK_REPOS}/ck-tensorflow/program/object-detection-tf-py/
 # FIXME: Move next to the TF-CUDA installation from sources.
 RUN ck install package --tags=lib,tensorflow,vcpu,vprebuilt,v1.14
 
-# Run the Object Detection TF-Python program
+# Run the Object Detection TF-Python program on the CPU
 # with the non-quantized SSD-MobileNet model
 # on the first 50 images of the COCO 2017 validation dataset.
 CMD ["ck run program:object-detection-tf-py \
+--dep_add_tags.lib-tensorflow=vprebuilt,vcpu \
 --dep_add_tags.weights=ssd-mobilenet,non-quantized \
 --env.CK_BATCH_COUNT=50"]

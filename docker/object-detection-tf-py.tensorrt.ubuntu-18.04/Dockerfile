@@ -83,6 +83,7 @@ RUN ck install package --tags=lib,python-package,cython
 RUN ck install package --tags=lib,python-package,cv2,opencv-python-headless
 RUN ck show env --tags=python-package
 # Install TF dependencies that currently have no CK packages.
+# FIXME: Move to Step 1.
 RUN ${CK_PYTHON} -m pip install gast --user
 RUN ${CK_PYTHON} -m pip install protobuf --user
 RUN ${CK_PYTHON} -m pip install absl-py --user
@@ -99,7 +100,7 @@ RUN ck install package --tags=tool,coco,api
 
 
 #-----------------------------------------------------------------------------#
-# Step 1. Install the TensorFlow v1.14 framework.
+# Step 1. Install TensorFlow v1.14 with CUDA/TensorRT support from sources.
 #-----------------------------------------------------------------------------#
 # Detect CUDA deps.
 RUN ck detect soft:compiler.cuda --full_path=/usr/local/cuda-10.1/bin/nvcc \
@@ -112,6 +113,14 @@ RUN ck install ck-env:package:tool-bazel-0.25.2-linux
 # FIXME: Use '--tags=lib,tensorflow,vsrc,vcuda,v1.14'.
 RUN ck install package --tags=lib,tensorflow-cuda,vsrc,v1.14 --env.CK_TF_NEED_TENSORRT="YES"\
  && rm -rf ~/.cache/bazel
+#-----------------------------------------------------------------------------#
+
+
+#-----------------------------------------------------------------------------#
+# Step 0.5. Install TensorFlow v1.14 via pip. FIXME: Install before TF from sources.
+# NB: We cannot install TensorFlow v1.14 with CUDA support via pip, as it needs CUDA 10.0.
+#-----------------------------------------------------------------------------#
+RUN ck install package --tags=lib,tensorflow,vcpu,vprebuilt,v1.14
 #-----------------------------------------------------------------------------#
 
 
@@ -165,12 +174,10 @@ RUN ck install package --tags=ssd,resnet50\
 # Allow the Object Detection TF-Python program create tmp files.
 RUN chmod -R 775 ${CK_REPOS}/ck-tensorflow/program/object-detection-tf-py/
 
-# FIXME: Move next to the TF-CUDA installation from sources.
-RUN ck install package --tags=lib,tensorflow,vcpu,vprebuilt,v1.14
-
-# Run the Object Detection TF-Python program
+# Run the Object Detection TF-Python program on the CPU
 # with the non-quantized SSD-MobileNet model
 # on the first 50 images of the COCO 2017 validation dataset.
 CMD ["ck run program:object-detection-tf-py \
+--dep_add_tags.lib-tensorflow=vprebuilt,vcpu \
 --dep_add_tags.weights=ssd-mobilenet,non-quantized \
 --env.CK_BATCH_COUNT=50"]

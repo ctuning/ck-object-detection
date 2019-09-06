@@ -224,4 +224,7 @@ The scripts can be found under:
 ```
 $ ck find script:<script_name>
 ```
-where `<script_name>` is either ... or ...
+where `<script_name>` is either 'dse-acc' or 'dse-perf'
+
+To use the script, you have to modify the first lines in order to adapt the path to the machine you will be running on.
+It is also possible to modify other parameters, like the list of model to test or the batch sizes and counts.

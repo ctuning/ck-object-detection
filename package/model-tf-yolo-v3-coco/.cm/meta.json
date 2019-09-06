@@ -8,13 +8,13 @@
       "DEFAULT_WIDTH": "416",
       "DEFAULT_HEIGHT": "416",
       "LABELMAP_FILE": "mscoco_label_map.pbtxt",
-      "MODEL_NAME": "yolo",
+      "MODEL_NAME": "YOLO-v3 COCO",
       "PACKAGE_NAME": "yolo_v3_coco.tar.gz",
       "PACKAGE_NAME1": "aaa",
       "PACKAGE_URL": "https://zenodo.org/record/3386327/files/",
       "WEIGHTS_FILE": "model.ckpt"
     },
-    "model_id": "yolo-v3",
+    "model_id": "yolo_v3_coco",
     "no_os_in_suggested_path": "yes",
     "no_ver_in_suggested_path": "yes",
     "version": "reference"
@@ -35,10 +35,10 @@
   "only_for_target_os_tags": [
     "linux"
   ],
-  "package_extra_name": " (Object Detection yolo v3)",
+  "package_extra_name": " (Object Detection YOLO-v3 COCO)",
   "process_script": "install",
   "soft_uoa": "3fc0c4b9ba63de2f",
-  "suggested_path": "model-tf-yolo-v3",
+  "suggested_path": "model-tf-yolo-v3-coco",
   "tags": [
     "object-detection",
     "model",

@@ -4,24 +4,24 @@
     "extra_dir": "",
     "install_env": {
       "DATASET_TYPE": "coco",
-      "DEFAULT_WIDTH": "1200",
-      "DEFAULT_HEIGHT": "1200",
       "FROZEN_GRAPH": "frozen_inference_graph.pb",
+      "DEFAULT_WIDTH": "1024",
+      "DEFAULT_HEIGHT": "600",
       "LABELMAP_FILE": "mscoco_label_map.pbtxt",
-      "MODEL_NAME": "faster rcnn nas lowproposal",
-      "PACKAGE_NAME": "faster_rcnn_nas_lowproposals_coco_2018_01_28.tar.gz",
-      "PACKAGE_NAME1": "faster_rcnn_nas_lowproposals_coco_2018_01_28",
+      "MODEL_NAME": "Faster-RCNN-ResNet50 lowproposals",
+      "PACKAGE_NAME": "faster_rcnn_resnet50_lowproposals_coco_2018_01_28.tar.gz",
+      "PACKAGE_NAME1": "faster_rcnn_resnet50_lowproposals_coco_2018_01_28",
       "PACKAGE_URL": "http://download.tensorflow.org/models/object_detection",
       "PIPELINE_CONFIG": "pipeline.config",
       "WEIGHTS_FILE": "model.ckpt"
     },
-    "model_id": "faster_rcnn_lowproposal",
+    "model_id": "faster_rcnn_resnet50_lowproposals_coco",
     "no_os_in_suggested_path": "yes",
     "no_ver_in_suggested_path": "yes",
     "version": "reference"
   },
   "deps": {
-    "labelmap": {
+    "labelmap": {   
       "local": "yes",
       "name": "Labelmap for COCO dataset",
       "tags": "labelmap,vcoco"
@@ -36,19 +36,20 @@
   "only_for_target_os_tags": [
     "linux"
   ],
-  "package_extra_name": " (Object Detection Faster RCNN NAS lowproposal)",
+  "package_extra_name": " (Object Detection Faster-RCNN-ResNet50 lowproposals COCO)",
   "process_script": "install",
   "soft_uoa": "3fc0c4b9ba63de2f",
-  "suggested_path": "model-tf-faster-rcnn-nas-lowproposal",
+  "suggested_path": "model-tf-faster-rcnn-resnet50-loproposals-coco",
   "tags": [
     "object-detection",
     "model",
     "tf",
     "tensorflow",
     "rcnn",
-    "rcnn-nas",
-    "nas",
-    "lowproposal",
+    "resnet50",
+    "resnet50-v1",
+    "rcnn-resnet50-v1",
+    "lowproposals",
     "non-quantized",
     "vcoco"
   ],

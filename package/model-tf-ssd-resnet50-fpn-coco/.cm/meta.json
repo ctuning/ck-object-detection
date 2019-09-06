@@ -15,7 +15,7 @@
       "PIPELINE_CONFIG": "pipeline.config",
       "WEIGHTS_FILE": "model.ckpt"
     },
-    "model_id": "ssd-resnet50-v1",
+    "model_id": "ssd_resnet50_v1_fpn_sbp_coco",
     "no_os_in_suggested_path": "yes",
     "no_ver_in_suggested_path": "yes",
     "version": "20180703"
@@ -36,26 +36,24 @@
   "only_for_target_os_tags": [
     "linux"
   ],
-  "package_extra_name": " (SSD-ResNet50-v1 FPN SBP COCO)",
+  "package_extra_name": " (Object Detection SSD-ResNet50-v1 FPN SBP COCO)",
   "process_script": "install",
   "soft_uoa": "3fc0c4b9ba63de2f",
-  "suggested_path": "model-tf-ssd-resnet50-fpn-coco",
+  "suggested_path": "model-tf-ssd-resnet50-v1-fpn-sbp-coco",
   "tags": [
-    "model",
-    "tensorflow",
-    "tf",
     "object-detection",
-    "ssd-resnet50-v1",
+    "model",
+    "tf",
+    "tensorflow",
     "ssd",
-    "resnet",
+    "ssd-resnet50-v1",
     "resnet50",
     "resnet50-v1",
     "feature-pyramid-network",
     "fpn",
     "shared-box-predictor",
     "sbp",
-    "vcoco",
-    "channel-stable"
+    "vcoco"
   ],
   "use_scripts_from_another_entry": {
     "data_uoa": "c412930408fb8271",

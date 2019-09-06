@@ -26,7 +26,6 @@ RUN apt update -y\
 
 # Create a non-root user with a fixed group id 1500 and a fixed user id 2000.
 # See the README for the gory details.
-# FIXME: Don't need a fixed user id?
 RUN groupadd -g 1500 dvdtg
 RUN useradd -u 2000 -g dvdtg --create-home --shell /bin/bash dvdt
 USER dvdt:dvdtg
@@ -48,13 +47,13 @@ RUN git clone https://github.com/ctuning/ck.git ${CK_ROOT}
 RUN cd ${CK_ROOT}\
  && ${CK_PYTHON} setup.py install --user\
  && ${CK_PYTHON} -c "import ck.kernel as ck; print ('Collective Knowledge v%s' % ck.__version__)"\
- && chmod g+x /home/dvdt/.local/bin/ck
+ && chmod -R g+rx /home/dvdt/.local
 
 # Explicitly create a CK experiment entry, a folder that will be mounted
 # (with '--volume=<folder_for_results>:/home/dvdt/CK_REPOS/local/experiment').
 # as a shared volume between the host and the container, and make it group-writable.
 RUN ck create_entry --data_uoa=experiment --path=${CK_REPOS}/local\
- && chmod g+w ${CK_REPOS}/local/experiment -R
+ && chmod -R g+w ${CK_REPOS}/local/experiment
 
 # Pull CK repositories (including ck-mlperf, ck-env, ck-autotuning, ck-tensorflow, ck-docker).
 RUN ck pull repo:ck-object-detection
@@ -124,24 +123,21 @@ RUN ck install package --tags=tool,coco,api
 #-----------------------------------------------------------------------------#
 # Step 4. Install the object detection models.
 #-----------------------------------------------------------------------------#
-# Pull all repos. FIXME: Will not be needed when we stabilize all names and tags.
-RUN ck pull all
-
-# Install TF model API, but remove useless API files to free up space.
-# FIXME: Do any of the models really depend on the TF model API?
-# FIXME: Do we really need to detect CMake?
-RUN ck detect soft --tags=cmake --full_path=/usr/local/bin/cmake
-RUN ck install package --tags=model,tensorflow,api\
- && ck virtual env --tags=model,tensorflow,api --shell_cmd=\
-'cd $CK_ENV_TENSORFLOW_MODELS;\
- mv object_detection ..;\
- rm * -r;\
- mv ../object_detection .;\
- cd ..;\
- rm official -rf;\
- rm samples -rf;\
- rm tutorials -rf;\
- rm .git -rf'
+## Install TF model API, but remove useless API files to free up space.
+## FIXME: Do any of the models really depend on the TF model API?
+## FIXME: Do we really need to detect CMake?
+#RUN ck detect soft --tags=cmake --full_path=/usr/local/bin/cmake
+#RUN ck install package --tags=model,tensorflow,api\
+# && ck virtual env --tags=model,tensorflow,api --shell_cmd=\
+#'cd $CK_ENV_TENSORFLOW_MODELS;\
+# mv object_detection ..;\
+# rm * -r;\
+# mv ../object_detection .;\
+# cd ..;\
+# rm official -rf;\
+# rm samples -rf;\
+# rm tutorials -rf;\
+# rm .git -rf'
 
 RUN ck install package --tags=rcnn,nas,lowproposals,vcoco\
  && ck install package --tags=rcnn,resnet50,lowproposals\
@@ -159,16 +155,13 @@ RUN ck install package --tags=rcnn,nas,lowproposals,vcoco\
 
 
 #-----------------------------------------------------------------------------#
-# Step n. Make final preparations to run the Object Detection TF-Python program.
+# Step 5. Make final preparations to run the Object Detection TF-Python program.
 #-----------------------------------------------------------------------------#
 # Install remaining Python dependencies of the program.
 # (Some are already installed above.)
-# FIXME: No longer need to use SciPy and Pillow?
-RUN ck install package --tags=lib,python-package,scipy --force_version=1.2.1
-RUN ck install package --tags=lib,python-package,pillow
 RUN ck install package --tags=lib,python-package,cv2,opencv-python-headless
-# Allow the program create tmp files.
-RUN chmod -R 775 ${CK_REPOS}/ck-tensorflow/program/object-detection-tf-py/
+# Allow the program create tmp files when running under an external user.
+RUN chmod -R g+rwx ${CK_REPOS}/ck-tensorflow/program/object-detection-tf-py/
 #-----------------------------------------------------------------------------#
 
 
@@ -180,4 +173,4 @@ RUN chmod -R 775 ${CK_REPOS}/ck-tensorflow/program/object-detection-tf-py/
 CMD ["ck run program:object-detection-tf-py \
 --dep_add_tags.lib-tensorflow=vprebuilt,vcpu \
 --dep_add_tags.weights=ssd-mobilenet,non-quantized \
---env.CK_BATCH_COUNT=50"]
+--env.CK_BATCH_COUNT=5"]

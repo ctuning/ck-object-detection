@@ -92,7 +92,7 @@ $ docker run --rm ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04 \
     "ck run program:object-detection-tf-py \
         --dep_add_tags.lib-tensorflow=vprebuilt \
         --dep_add_tags.weights=ssd-mobilenet,quantized \
-        --env.CK_BATCH_COUNT=50 \
+        --env.CK_BATCH_SIZE=1 --env.CK_BATCH_COUNT=50 \
     "
 ```
 Here, we run inference on 50 images on the CPU using the quantized SSD-MobileNet model.
@@ -109,7 +109,7 @@ $ docker run --runtime=nvidia --rm ctuning/object-detection-tf-py.tensorrt.ubunt
     "ck run program:object-detection-tf-py \
         --dep_add_tags.lib-tensorflow=vsrc \
         --dep_add_tags.weights=ssd-mobilenet,quantized \
-        --env.CK_BATCH_COUNT=50 \
+        --env.CK_BATCH_SIZE=1 --env.CK_BATCH_COUNT=50 \
         --env.CK_ENABLE_TENSORRT=1 \
         --env.CK_TENSORRT_DYNAMIC=1 \
     "
@@ -149,7 +149,7 @@ For example, to run inference on the quantized SSD-MobileNet model, add `--dep_a
 |-|-|-|-|
 | `--env.CK_CUSTOM_MODEL`     | 0,1              | 0 | Specifies whether the model comes from the TensorFlow zoo (`0`) or from another source (`1`). (Models from other sources have to implement their own preprocess, postprocess and get tensor functions, as explained in the [application documentation](https://github.com/ctuning/ck-tensorflow/blob/master/program/object-detection-tf-py/README.md#support-for-custom-models).) |
 | `--env.CK_ENABLE_BATCH`     | 0,1              | 0 | Specifies whether batching should be enabled (must be used for `--env.CK_BATCH_SIZE` to take effect). |
-| `--env.CK_BATCH_SIZE`       | positive integer | 1 | Specifies the number of images to process in a single batch (must be used with `--env.CK_ENABLE_BATCH=1`). |
+| `--env.CK_BATCH_SIZE`       | positive integer | 1 | Specifies the number of images to process in a single batch (if not `1`, must be used with `--env.CK_ENABLE_BATCH=1`). |
 | `--env.CK_BATCH_COUNT`      | positive integer | 1 | Specifies the number of batches to be processed. |
 | `--env.CK_ENV_IMAGE_WIDTH`, `--env.CK_ENV_IMAGE_HEIGHT` | positive integer | Model-specific (set by CK) | These parameters can be used to resize at runtime the input images to a different size than the default size for the model. (This usually decreases the accuracy.) |
 | `--env.CK_ENABLE_TENSORRT`  | 0,1              | 0 | Enables the TensorRT backend (only to be used with TensorFlow built from sources). |
@@ -226,5 +226,5 @@ $ ck find script:<script_name>
 ```
 where `<script_name>` is either 'dse-acc' or 'dse-perf'
 
-To use the script, you have to modify the first lines in order to adapt the path to the machine you will be running on.
-It is also possible to modify other parameters, like the list of model to test or the batch sizes and counts.
+To use the script, you have to modify the first lines in order to adapt the path to the your host system.
+You can also modify other parameters, like the list of models to test or the batch sizes and counts.

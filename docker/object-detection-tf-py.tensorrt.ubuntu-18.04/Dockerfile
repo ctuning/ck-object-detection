@@ -52,7 +52,8 @@ RUN cd ${CK_ROOT}\
 # Explicitly create a CK experiment entry, a folder that will be mounted
 # (with '--volume=<folder_for_results>:/home/dvdt/CK_REPOS/local/experiment').
 # as a shared volume between the host and the container, and make it group-writable.
-RUN ck create_entry --data_uoa=experiment --path=${CK_REPOS}/local\
+# For consistency, use the "canonical" uid from ck-analytics:module:experiment.
+RUN ck create_entry --data_uoa=experiment --data_uid=bc0409fb61f0aa82 --path=${CK_REPOS}/local\
  && chmod -R g+w ${CK_REPOS}/local/experiment
 
 # Pull CK repositories (including ck-mlperf, ck-env, ck-autotuning, ck-tensorflow, ck-docker).

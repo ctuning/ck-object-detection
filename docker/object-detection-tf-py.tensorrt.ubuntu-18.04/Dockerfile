@@ -11,8 +11,7 @@ ENTRYPOINT ["/bin/bash", "-c"]
 # Install known system dependencies and immediately clean up to make the image smaller.
 # CK needs: git, wget, zip.
 # TF needs: curl.
-# TensorFlow Object Detection API needs ProtoBuf 3.0 which needs CMake.
-# FIXME: But do we really need thi API?
+# TF Object Detection API needs ProtoBuf 3.0 which needs CMake.
 RUN apt update -y\
  && apt install -y apt-utils\
  && apt upgrade -y\
@@ -24,7 +23,8 @@ RUN apt update -y\
  vim\
  && apt clean
 
-# Create a non-root user with a fixed group id 1500 and a fixed user id 2000.
+# Create a non-root user with a fixed group id 1500 and a fixed user id 2000
+# (hopefully distinct from any host user id for security reasons).
 # See the README for the gory details.
 RUN groupadd -g 1500 dvdtg
 RUN useradd -u 2000 -g dvdtg --create-home --shell /bin/bash dvdt
@@ -123,21 +123,19 @@ RUN ck install package --tags=tool,coco,api
 #-----------------------------------------------------------------------------#
 # Step 4. Install the object detection models.
 #-----------------------------------------------------------------------------#
-## Install TF model API, but remove useless API files to free up space.
-## FIXME: Do any of the models really depend on the TF model API?
-## FIXME: Do we really need to detect CMake?
-#RUN ck detect soft --tags=cmake --full_path=/usr/local/bin/cmake
-#RUN ck install package --tags=model,tensorflow,api\
-# && ck virtual env --tags=model,tensorflow,api --shell_cmd=\
-#'cd $CK_ENV_TENSORFLOW_MODELS;\
-# mv object_detection ..;\
-# rm * -r;\
-# mv ../object_detection .;\
-# cd ..;\
-# rm official -rf;\
-# rm samples -rf;\
-# rm tutorials -rf;\
-# rm .git -rf'
+# Install TF model API, but remove useless API files to free up space.
+RUN ck detect soft --tags=cmake --full_path=/usr/local/bin/cmake
+RUN ck install package --tags=model,tensorflow,api\
+ && ck virtual env --tags=model,tensorflow,api --shell_cmd=\
+'cd $CK_ENV_TENSORFLOW_MODELS;\
+ mv object_detection ..;\
+ rm * -r;\
+ mv ../object_detection .;\
+ cd ..;\
+ rm official -rf;\
+ rm samples -rf;\
+ rm tutorials -rf;\
+ rm .git -rf'
 
 RUN ck install package --tags=rcnn,nas,lowproposals,vcoco\
  && ck install package --tags=rcnn,resnet50,lowproposals\
@@ -158,7 +156,7 @@ RUN ck install package --tags=rcnn,nas,lowproposals,vcoco\
 # Step 5. Make final preparations to run the Object Detection TF-Python program.
 #-----------------------------------------------------------------------------#
 # Install remaining Python dependencies of the program.
-# (Some are already installed above.)
+# (Some have already been installed.)
 RUN ck install package --tags=lib,python-package,cv2,opencv-python-headless
 # Allow the program create tmp files when running under an external user.
 RUN chmod -R g+rwx ${CK_REPOS}/ck-tensorflow/program/object-detection-tf-py/
@@ -173,4 +171,4 @@ RUN chmod -R g+rwx ${CK_REPOS}/ck-tensorflow/program/object-detection-tf-py/
 CMD ["ck run program:object-detection-tf-py \
 --dep_add_tags.lib-tensorflow=vprebuilt,vcpu \
 --dep_add_tags.weights=ssd-mobilenet,non-quantized \
---env.CK_BATCH_COUNT=5"]
+--env.CK_BATCH_SIZE=1 --env.CK_BATCH_COUNT=50"]

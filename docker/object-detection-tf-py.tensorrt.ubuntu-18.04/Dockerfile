@@ -123,6 +123,20 @@ RUN ck install package --tags=tool,coco,api
 #-----------------------------------------------------------------------------#
 # Step 4. Install the object detection models.
 #-----------------------------------------------------------------------------#
+# Install TF model API, but remove useless API files to free up space.
+RUN ck detect soft --tags=cmake --full_path=/usr/local/bin/cmake
+RUN ck install package --tags=model,tensorflow,api\
+ && ck virtual env --tags=model,tensorflow,api --shell_cmd=\
+'cd $CK_ENV_TENSORFLOW_MODELS;\
+ mv object_detection ..;\
+ rm * -r;\
+ mv ../object_detection .;\
+ cd ..;\
+ rm official -rf;\
+ rm samples -rf;\
+ rm tutorials -rf;\
+ rm .git -rf'
+
 RUN ck install package --tags=rcnn,nas,lowproposals,vcoco\
  && ck install package --tags=rcnn,resnet50,lowproposals\
  && ck install package --tags=rcnn,resnet101,lowproposals\

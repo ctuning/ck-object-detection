@@ -26,6 +26,7 @@ easier to manage a single image.
         - [Docker parameters](#parameters_docker)
         - [CK parameters](#parameters_ck)
     - [Explore](#explore)
+    - [Analyze](#analyze)
 
 <a name="setup"></a>
 # Setup
@@ -228,3 +229,38 @@ where `<script_name>` is either 'dse-acc' or 'dse-perf'
 
 To use the script, you have to modify the first lines in order to adapt the path to the your host system.
 You can also modify other parameters, like the list of models to test or the batch sizes and counts.
+
+
+<a name="analyze"></a>
+## Analyze the results
+
+### Copy the results to a machine for analysis
+
+Once you have accumulated some experiment entries in `<folder_for_results>`, you can zip them:
+```bash
+$ cd <folder_for_results>
+$ zip -rv <file_with_results>.zip {.cm,*}
+```
+copy the `<file_with_results>.zip` to a machine where you would like to analyze the results,
+create there a new repository with a placeholder for experiment entries:
+```bash
+$ ck add repo:object-detection-tf-py-experiments --quiet
+$ ck add object-detection-tf-py-experiments:experiment:dummy --common_func
+$ ck rm  object-detection-tf-py-experiments:experiment:dummy --force
+```
+or:
+```bash
+$ ck add repo:object-detection-tf-py-experiments --quiet
+$ ck create_entry --data_uoa=experiment --data_uid=bc0409fb61f0aa82 \
+--path=`ck find repo:object-detection-tf-py-experiments`
+```
+and, finally, extract the results:
+```
+$ unzip <file_with_result>.zip -d `ck find repo:object-detection-tf-py-experiments`/experiment
+$ ck list object-detection-tf-py-experiments:experiment:*
+...
+```
+
+### Visualize the results via Jupyter
+
+**TBC**

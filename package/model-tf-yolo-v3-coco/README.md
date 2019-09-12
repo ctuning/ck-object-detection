@@ -1,23 +1,29 @@
-# Object Detection TensorFlow Yolo Model Package
+# Object Detection - TensorFlow YOLO-v3 Model Package
 
-This package contains an example of a "custom model" for the object-detection-tf-py application.
+This package contains an example of a "custom" model for the [`object-detection-tf-py`](https://github.com/ctuning/ck-tensorflow/blob/master/program/object-detection-tf-py/) application.
+This application has function hooks that allow anyone to integrate into the application a model that is not structured in the same way as models in the [TensorFlow model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md).
+These functions are in two Python files in this package: [`custom_hooks.py`](#custom_hooks) and [`custom_tensorRT.py`](#custom_tensorRT). 
 
-as explained in the application (in the ck-tensorflow repository), there are some hooks inserted into the application that allow anyone to integrate a model that is not structured as the models in the tensorflow zoo into the application.
-these hooks are contained in the two files present in this package(`custom_hooks.py` and `custom_tensorRT.py`)
-The interface of these functions MUST be as follows:
-`custom_hooks.py` has to expose five functions:
+<a href="custom_hooks"></a>
+## `custom_hooks.py`
 
-- `ck_custom_preprocess`
+The file has to expose 5 functions:
+- `ck_custom_preprocess`, `ck_custom_preprocess_batch`
+- `ck_custom_postprocess`, `ck_custom_postprocess_batch`
 - `ck_custom_get_tensors`
-- `ck_custom_postprocess`
-- `ck_custom_preprocess_batch`
-- `ck_custom_postprocess_batch`
 
+**NB:** The batch processing functions (`ck_custom_*process_batch`) have the same interface as the non-batch ones (`ck_custom_*process`).
+The main difference is in the first dimension of input/output: 
+for example, if the non-batch functions work with tensors of shape `[1, H, W, C]`, the batch ones work with tensors of shape `[N, H, W,C]`.
 
-More in detail, the function descriptions and parameters have to follow the following scheme.
+**TODO:** Describe how the `--env.CK_ENABLE_BATCH` flag enables the choice of batch and non-batch functions.
 
-- `ck_custom_preprocess` and `ck_custom_preprocess_batch` :
-   - in charge or preparing the image for the detection. must produce the input tensor and some other helper data.
+In more detail, the function descriptions and parameters have to follow the following scheme.
+
+### `ck_custom_preprocess`, `ck_custom_preprocess_batch`
+
+These functions are in charge of preparing the input image for the detection.
+They must produce the input tensor and some other helper data.
 
 | Input Parameter | Description |
 | ---- | ---- |
@@ -28,30 +34,33 @@ More in detail, the function descriptions and parameters have to follow the foll
 
 | Output Parameter | Description |
 | ---- | ---- |
-|`image_data`           | numpy array to be fed to the detection graph (input tensor)|
+|`image_data`           | NumPy array to be fed to the detection graph (input tensor)|
 |`processed_image_ids`  | see input parameters|
 |`image_size`           | [list of] tuple with the sizes. depends if batch is used or not, if not is a single tuple|
-|`original_image`       | [list of] list containing the original images as read before the modification done in preprocessing. may be useless|
+|`original_image`       | [list of] list containing the original images as read before the modification done in preprocessing. may be useless. |
 
-- `ck_custom_postprocess` and `ck_custom_postprocess_batch`:
-   - in charge of producing the output of the detection. must read output tensors and produce the txt file with the detections, and if required the images with the boxes.
+
+### `ck_custom_postprocess`, `ck_custom_postprocess_batch`
+
+These functions are in charge of producing the output of the detection.
+They must read output tensors and produce a `txt` file with the detections, and, if requested, output images with the boxes.
 	
 | Input Parameter | Description |
 | ---- | ---- |
 |`image_files`	     | list with all the filenames of the image to process, with full path |
 |`iter_num`            | integer with the loop iteration value |
 |`image_size`	     | [list of] tuple with the sizes. depends if batch is used or not, if not is a single tuple|
-|`original_image`      | [list of] list containing the original images as read before the modification done in preprocessing. may be useless|
-|`image_data`          | numpy array to be fed to the detection graph (input tensor)|
+|`original_image`      | [list of] list containing the original images as read before the modification done in preprocessing. may be useless. |
+|`image_data`          | NumPy array to be fed to the detection graph (input tensor)|
 |`output_dict`         | output tensors. dictionary containing the tensors as "name : value" couples.|
 |`category_index`      | dictionary to identify label and categories|
 |`params`              | dictionary with the application parameters|
 
 **No Output Parameters**
 		
+### `ck_custom_get_tensors`
 
-- `ck_custom_get_tensors`:
-   - in charge of getting the input and output tensors from the model graph.
+These function is in charge of getting the input and output tensors from the model graph.
 
 **No Input Parameters**
 
@@ -61,43 +70,42 @@ More in detail, the function descriptions and parameters have to follow the foll
 |`input_tensor`         | input tensor|
 
 
+## `custom_tensorRT.py`
 
-The batch processing functions have the same interface of the functions that work without batch, the main difference between them is in the structure of the input/output in the single image processing, the input array has to be (for example) [1, H, W, C], while for the batch is [N, H, W, C].
-In the same way, the postprocessing function will receive the output array from the network according to the network shape and the difference will be in the first dimension. 
-
-
-The second file, `custom_tensorRT.py`, contains the functions required to support the tensorRT backend. These functions are:
+This file contains 3 functions required to support the TensorRT backend:
 
 - `load_graph_tensorrt_custom`
 - `convert_from_tensorrt`     
 - `get_handles_to_tensors_RT` 
 
-More in detail, function must support the interfaces as follows:
+**TODO:** Describe how the `--env.CK_ENABLE_TENSORRT` flag enables the choice the backend.
 
-- `load_graph_tensorrt_custom`:
-    - in charge of loading the graph from a frozen model.
+In more detail, function must support the interfaces as follows:
+
+### `load_graph_tensorrt_custom`:
+
+This function is in charge of loading the graph from a frozen model.
 	
 | Input Parameter | Description |
 | ---- | ---- |
 | `params`               | dictionary with the application parameters |
 
-**No output parameters**
+**No Output Parameters**
 
-- `convert_from_tensorrt`:
-    - in charge of converting the dictionary if tensorRT is used, since output in tensorRT is a list and not a dict
+### `convert_from_tensorrt`
+This function is in charge of converting the output to a dictionary (since TensorRT outputs a list, not a dictionary).
 	
 | Input Parameter | Description |
 | ---- | ---- |
-|`output_dict`          | output tensors. if tensorRT, is a list/dictionary containing the output tensors with tensorRT names|
+|`output_dict`          | Output tensors. if TensorRT, is a list/dictionary containing the output tensors with TensorRT names. |
 
 | Output Parameter | Description |
 | ---- | ---- |
-|`output_dict`          | output tensors. dictionary/list containing the tensors as the postprocessing function requires.
+|`output_dict`          | Output tensors. dictionary/list containing the tensors as the postprocessing function requires.
 
 
-- `get_handles_to_tensors_RT`:
-    - in charge of getting the input and output tensors from the model graph.
-
+### `get_handles_to_tensors_RT`
+This function is in charge of getting the input and output tensors from the model graph.
 
 **No Input Parameters**
 
@@ -106,7 +114,7 @@ More in detail, function must support the interfaces as follows:
 |`tensor_dict`          | dictionary with the output tensors|
 |`input_tensor`         | input tensor|
 
-
-
-The internal tensor representation is strictly linked to the model, and the application is completely agnostic in this aspect. The programmer is in charge to keep the coherency between the preprocess, get tensor and postprocess functions.
-
+The internal tensor representation is strictly linked to the model, and the
+application is completely agnostic in this aspect. The programmer is in charge
+to keep the coherency between the preprocess, get tensor and postprocess
+functions.

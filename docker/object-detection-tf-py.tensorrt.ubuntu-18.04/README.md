@@ -241,7 +241,7 @@ Once you have accumulated some experiment entries in `<folder_for_results>`, you
 $ cd <folder_for_results>
 $ zip -rv <file_with_results>.zip {.cm,*}
 ```
-copy the `<file_with_results>.zip` to a machine where you would like to analyze the results,
+copy `<file_with_results>.zip` to a machine where you would like to analyze them,
 create there a new repository with a placeholder for experiment entries:
 ```bash
 $ ck add repo:object-detection-tf-py-experiments --quiet

@@ -36,7 +36,6 @@ $ ck install package --tags=tensorflowmodel,object-detection
 
  0) tensorflowmodel-object-detection-ssd-resnet50-v1-fpn-sbp-640x640-coco  Version 20170714  (09baac5e6f931db2)
  1) tensorflowmodel-object-detection-ssd-mobilenet-v1-coco  Version 20170714  (385831f88e61be8c)
- 2) tensorflowmodel-object-detection-faster-rcnn-resnet101-kitti  Version 20170714  (36131254c4390390)
 ```
 
 ### Datasets
@@ -44,13 +43,12 @@ $ ck install package --tags=tensorflowmodel,object-detection
 $ ck install package --tags=dataset,object-detection
 ```
 
-**NB:** If you have previously installed the `coco` or `kitti` datasets, you should probably renew them:
+**NB:** If you have previously installed the `coco` dataset, you should probably renew them:
 ```bash
 $ ck refresh env:{dataset-env-uoa}
 ```
 where `dataset-env-uoa` is one of the env identifiers returned by:
 ```bash
-$ ck show env --tags=dataset,kitti
 $ ck show env --tags=dataset,coco
 ```
 
@@ -171,6 +169,3 @@ mlperf variable with the max latency in the 99pct tile
 Default: `0.1`
 
 
-```bash
-$ ck run object-detection-tf-py --env.CK_METRIC_TYPE=KITTI
-```

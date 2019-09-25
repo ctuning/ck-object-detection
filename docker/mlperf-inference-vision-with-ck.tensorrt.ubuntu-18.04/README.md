@@ -1,4 +1,4 @@
-# Object Detection TensorFlow (Python) Docker image
+# FIXME: Currently identical to: Object Detection TensorFlow (Python) Docker image
 
 [This image](https://hub.docker.com/r/ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04) is based on
 [the TensorRT 19.07 image](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_19-07.html) from NVIDIA

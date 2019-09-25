@@ -163,13 +163,28 @@ RUN ck install package --tags=lib,python-package,cv2,opencv-python-headless
 RUN chmod -R g+rwx ${CK_REPOS}/ck-tensorflow/program/object-detection-tf-py/
 #-----------------------------------------------------------------------------#
 
-RUN ck install package --tags=mlperf,inference,source,upstream.master
-RUN ck install package --tags=absl,python-package
-RUN ck install package --tags=lib,loadgen,python-package
 
+#=============================================================================#
+# NB: The above is shared with object-detection-tf-py.tensorrt.ubuntu-18.04
+#=============================================================================#
+
+
+#-----------------------------------------------------------------------------#
+# Step 6. Make final preparations to run the official vision app with CK mods.
+#-----------------------------------------------------------------------------#
+# Install LoadGen from the official MLPerf Inference repo.
+# NB: While Abseil has already been installed above,
+# we install and register it with CK here as well.
+RUN ck install package --tags=mlperf,inference,source,upstream.master
+RUN ck install package --tags=lib,python-package,absl
+RUN ck install package --tags=lib,python-package,mlperf,loadgen
+# Install the official vision app with CK modifications.
 RUN ck install package --tags=mlperf,inference,source,dividiti.vision_with_ck
 #-----------------------------------------------------------------------------#
-# Run the Object Detection TF-Python program on the CPU
+
+
+#-----------------------------------------------------------------------------#
+# Run the official MLPerf Inference vision app on the CPU
 # with the non-quantized SSD-MobileNet model
 # on the first 50 images of the COCO 2017 validation dataset.
 #-----------------------------------------------------------------------------#

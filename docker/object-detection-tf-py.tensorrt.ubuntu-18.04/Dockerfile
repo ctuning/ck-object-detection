@@ -171,5 +171,5 @@ RUN chmod -R g+rwx ${CK_REPOS}/ck-tensorflow/program/object-detection-tf-py/
 #-----------------------------------------------------------------------------#
 CMD ["ck run program:object-detection-tf-py \
 --dep_add_tags.lib-tensorflow=vprebuilt,vcpu \
---dep_add_tags.weights=ssd-mobilenet,non-quantized \
+--dep_add_tags.weights=ssd-mobilenet,non-quantized,mlperf \
 --env.CK_BATCH_SIZE=1 --env.CK_BATCH_COUNT=50"]

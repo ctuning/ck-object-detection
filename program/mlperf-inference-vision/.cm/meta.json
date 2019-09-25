@@ -25,7 +25,7 @@
       "sort": 20,
       "tags": "dataset,object-detection"
     },
-    "mlperf-inference-as-lib": {
+    "mlperf-inference-src": {
       "add_to_path": "no",
       "local": "yes",
       "name": "MLPerf Inference source",

@@ -36,7 +36,7 @@
       "local": "yes",
       "name": "Python MLPerf LoadGen library",
       "sort": 46,
-      "tags": "lib,loadgen,python-package"
+      "tags": "lib,python-package,mlperf,loadgen"
     },
     "lib-python-matplotlib": {
       "local": "yes",
@@ -101,7 +101,9 @@
   "tags": [
     "object-detection",
     "tf",
-    "lang-python"
+    "lang-python",
+    "mlperf",
+    "vision"
   ],
-  "template_type": "Object Detection via TensorFlow (Python)"
+  "template_type": "MLPerf Inference official vision application"
 }

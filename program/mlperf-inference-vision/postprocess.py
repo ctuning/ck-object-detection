@@ -59,7 +59,9 @@ def ck_postprocess(i):
                                     'classification_and_detection', 'tools', 'accuracy-coco.py' )
     coco_dir = deps['dataset']['dict']['env']['CK_ENV_DATASET_COCO']
 
-    os.environ['PYTHONPATH']=deps['tool-coco']['dict']['env']['PYTHONPATH']
+    pythonpath_coco = deps['tool-coco']['dict']['env']['PYTHONPATH'].split(':')[0]
+    pythonpath_matplotlib = deps['lib-python-matplotlib']['dict']['env']['PYTHONPATH'].split(':')[0]
+    os.environ['PYTHONPATH'] = pythonpath_matplotlib+':'+pythonpath_coco+':'+os.environ.get('PYTHONPATH','')
     command = [ python_bin, accuracy_script, '--mlperf-accuracy-file', MLPERF_LOG_ACCURACY_JSON, '--coco-dir', coco_dir ]
     output = check_output(command)
     # The last line is e.g. "mAP=13.323%".

@@ -22,12 +22,12 @@ mkdir -p ${EXPERIMENTS_DIR}
 # 2. Configure scenarios (affects batch options).
 ###############################################################################
 # Uncomment for full run.
-#scenarios=( 'SingleStream' 'Offline' )
-#scenarios_lowercase=( 'singlestream' 'offline' )
+scenarios=( 'SingleStream' 'Offline' )
+scenarios_lowercase=( 'singlestream' 'offline' )
 
 # Uncomment for debug run.
-scenarios=( 'SingleStream' )
-scenarios_lowercase=( 'singlestream' )
+#scenarios=( 'SingleStream' )
+#scenarios_lowercase=( 'singlestream' )
 
 scenarios_selection=()
 for scenario in "${scenarios[@]}"; do
@@ -38,7 +38,7 @@ done
 # NB: batch_sizes (#samples/query) must be 1 for SingleStream.
 # NB: batch_count (#queries) must be at least 1024 for SingleStream.
 # batch_sizes=( 1 2 4 8 16 32 )
-batch_sizes=( 1 2 )
+batch_sizes=( 1 1 )
 batch_count=2
 
 
@@ -48,12 +48,12 @@ batch_count=2
 # models, while 'models_tags' are tags for recording experimental results.
 ###############################################################################
 # Uncomment for full run.
-#models=( 'rcnn,nas,lowproposals,vcoco' 'rcnn,resnet50,lowproposals' 'rcnn,resnet101,lowproposals' 'rcnn,inception-resnet-v2,lowproposals' 'rcnn,inception-v2' 'ssd,inception-v2' 'ssd,mobilenet-v1,quantized,mlperf,tf' 'ssd,mobilenet-v1,mlperf,non-quantized,tf' 'ssd,mobilenet-v1,fpn' 'ssd,resnet50,fpn' 'ssdlite,mobilenet-v2,vcoco' 'yolo-v3' )
-#models_tags=( 'rcnn-nas-lowproposals'  'rcnn-resnet50-lowproposals' 'rcnn-resnet101-lowproposals' 'rcnn-inception-resnet-v2-lowproposals' 'rcnn-inception-v2' 'ssd-inception-v2' 'ssd-mobilenet-v1-quantized-mlperf'    'ssd-mobilenet-v1-non-quantized-mlperf'    'ssd-mobilenet-v1-fpn' 'ssd-resnet50-fpn' 'ssdlite-mobilenet-v2'       'yolo-v3' )
+models=( 'rcnn,nas,lowproposals,vcoco' 'rcnn,resnet50,lowproposals' 'rcnn,resnet101,lowproposals' 'rcnn,inception-resnet-v2,lowproposals' 'rcnn,inception-v2' 'ssd,inception-v2' 'ssd,mobilenet-v1,quantized,mlperf,tf' 'ssd,mobilenet-v1,mlperf,non-quantized,tf' 'ssd,mobilenet-v1,fpn' 'ssd,resnet50,fpn' 'ssdlite,mobilenet-v2,vcoco' 'yolo-v3' )
+models_tags=( 'rcnn-nas-lowproposals'  'rcnn-resnet50-lowproposals' 'rcnn-resnet101-lowproposals' 'rcnn-inception-resnet-v2-lowproposals' 'rcnn-inception-v2' 'ssd-inception-v2' 'ssd-mobilenet-v1-quantized-mlperf'    'ssd-mobilenet-v1-non-quantized-mlperf'    'ssd-mobilenet-v1-fpn' 'ssd-resnet50-fpn' 'ssdlite-mobilenet-v2'       'yolo-v3' )
 
 # Uncomment for debug run.
-models=( 'yolo-v3' )
-models_tags=( 'yolo-v3' )
+#models=( 'yolo-v3' )
+#models_tags=( 'yolo-v3' )
 
 models_selection=()
 for model in "${models[@]}"; do
@@ -71,12 +71,12 @@ done
 # 4. Configure TensorFlow backends.
 ###############################################################################
 # Uncomment for full run.
-#backends_selection=( '--dep_add_tags.lib-tensorflow=vcpu' '--dep_add_tags.lib-tensorflow=vcuda --env.CUDA_VISIBLE_DEVICES=-1' '--dep_add_tags.lib-tensorflow=vcuda --env.CK_TF_GPU_MEMORY_PERCENT=99' '--dep_add_tags.lib-tensorflow=vcuda --env.CK_TF_GPU_MEMORY_PERCENT=99 --env.CK_ENABLE_TENSORRT=1' '--dep_add_tags.lib-tensorflow=vcuda --env.CK_TF_GPU_MEMORY_PERCENT=99 --env.CK_ENABLE_TENSORRT=1 --env.CK_TENSORRT_DYNAMIC=1' )
-#backends_tags=( 'cpu-prebuilt' 'cpu' 'cuda' 'tensorrt' 'tensorrt-dynamic' )
+backends_selection=( '--dep_add_tags.lib-tensorflow=vcpu' '--dep_add_tags.lib-tensorflow=vcuda --env.CUDA_VISIBLE_DEVICES=-1' '--dep_add_tags.lib-tensorflow=vcuda --env.CK_TF_GPU_MEMORY_PERCENT=99' '--dep_add_tags.lib-tensorflow=vcuda --env.CK_TF_GPU_MEMORY_PERCENT=99 --env.CK_ENABLE_TENSORRT=1' '--dep_add_tags.lib-tensorflow=vcuda --env.CK_TF_GPU_MEMORY_PERCENT=99 --env.CK_ENABLE_TENSORRT=1 --env.CK_TENSORRT_DYNAMIC=1' )
+backends_tags=( 'cpu-prebuilt' 'cpu' 'cuda' 'tensorrt' 'tensorrt-dynamic' )
 
 # Uncomment for debug run.
-backends_selection=( '--dep_add_tags.lib-tensorflow=vcuda --env.CK_TF_GPU_MEMORY_PERCENT=99 --env.CK_ENABLE_TENSORRT=1 --env.CK_TENSORRT_DYNAMIC=1' )
-backends_tags=( 'tensorrt-dynamic' )
+#backends_selection=( '--dep_add_tags.lib-tensorflow=vcuda --env.CK_TF_GPU_MEMORY_PERCENT=99 --env.CK_ENABLE_TENSORRT=1 --env.CK_TENSORRT_DYNAMIC=1' )
+#backends_tags=( 'tensorrt-dynamic' )
 
 
 ###############################################################################
@@ -152,6 +152,7 @@ for i in $(seq 1 ${scenarios_len}); do
       echo "  profile_selection: ${profile_selection}"
       echo "  record_uoa=${record_uoa}"
       echo "  record_tags=${record_tags}"
+      # NB: Prepend the next line with 'echo' to print the full command without executing it.
       docker run --runtime=nvidia --user=$(id -u):1500 \
       --env-file ${CK_REPOS}/ck-object-detection/docker/${IMAGE}/env.list \
       --volume ${EXPERIMENTS_DIR}:/home/dvdt/CK_REPOS/local/experiment \

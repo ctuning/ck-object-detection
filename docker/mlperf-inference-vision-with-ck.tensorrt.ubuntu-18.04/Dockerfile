@@ -178,8 +178,19 @@ RUN chmod -R g+rwx ${CK_REPOS}/ck-tensorflow/program/object-detection-tf-py/
 RUN ck install package --tags=mlperf,inference,source,upstream.master
 RUN ck install package --tags=lib,python-package,absl
 RUN ck install package --tags=lib,python-package,mlperf,loadgen
+
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
+# FIXME: Do we really still need Pillow?
+RUN ck install package --tags=lib,python-package,pillow
+# Pull latest changes (keep swapping the repos order to avoid caching).
+RUN ck pull repo:ck-mlperf
+RUN ck pull repo:ck-object-detection
+#vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
+
 # Install the official vision app with CK modifications.
 RUN ck install package --tags=mlperf,inference,source,dividiti.vision_with_ck
+# Allow the program to create tmp files when running under an external user.
+RUN chmod -R g+rwx `ck find program:mlperf-inference-vision`
 #-----------------------------------------------------------------------------#
 
 

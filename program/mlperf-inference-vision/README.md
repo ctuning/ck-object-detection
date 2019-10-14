@@ -90,13 +90,13 @@ Type of the dataset (coco,kitti,...) that is used for the inference
 
 Default: set by CK
 
-#### `CK_ENV_IMAGE_WIDTH` and `CK_ENV_IMAGE_WIDTH
+#### `CK_ENV_IMAGE_WIDTH` and `CK_ENV_IMAGE_HEIGHT`
 
 The dimensions for the resize of the images, for the preprocessing
 
 Default: set by CK, according to the selected model
 
-#### `CK_ENV_DATASET_IMAGE_DIR
+#### `CK_ENV_DATASET_IMAGE_DIR`
 
 Path to the directory with the images
 
@@ -108,7 +108,7 @@ Type of dataset used for the program run
 
 Default: set by CK
 
-#### `CK_ENV_DATASET_ANNOTATIONS_PATH
+#### `CK_ENV_DATASET_ANNOTATIONS_PATH`
 
 Path to the file with the annotations
 

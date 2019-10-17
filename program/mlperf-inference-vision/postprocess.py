@@ -72,7 +72,7 @@ def ck_postprocess(i):
     command = [ python_bin, accuracy_script, '--mlperf-accuracy-file', MLPERF_LOG_ACCURACY_JSON, '--coco-dir', coco_dir ]
     output = check_output(command)
     # The last line is e.g. "mAP=13.323%".
-    mAP_percent_line = output.splitlines()[-1]
+    mAP_percent_line = output.splitlines()[-1].decode('utf-8')
 
     searchObj = re.search('mAP\=([\d\.]+)%', mAP_percent_line)
     if searchObj:

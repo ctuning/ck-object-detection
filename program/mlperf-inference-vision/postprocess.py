@@ -74,9 +74,11 @@ def ck_postprocess(i):
     # The last line is e.g. "mAP=13.323%".
     mAP_percent_line = output.splitlines()[-1].decode('utf-8')
 
-    searchObj = re.search('mAP\=([\d\.]+)%', mAP_percent_line)
+    searchObj = re.search('mAP\=([\d\.]+)\%', mAP_percent_line)
     if searchObj:
         mAP_percent = float(searchObj.group(1))
+    else
+        print("Could not parse mAP out of the following string: <<" + mAP_percent_line + ">>")
 
     save_dict['accuracy_mAP_pc'] = mAP_percent
     save_dict['accuracy_mAP'] = mAP_percent * 0.01

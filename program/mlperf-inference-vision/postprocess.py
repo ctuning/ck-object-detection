@@ -71,6 +71,11 @@ def ck_postprocess(i):
     os.environ['PYTHONPATH'] = pythonpath_matplotlib+':'+pythonpath_coco+':'+os.environ.get('PYTHONPATH','')
     command = [ python_bin, accuracy_script, '--mlperf-accuracy-file', MLPERF_LOG_ACCURACY_JSON, '--coco-dir', coco_dir ]
     output = check_output(command)
+
+    print("accuracy_script output:")
+    print("+-"*30)
+    print(output.decode('utf-8'))
+    print("-+"*30)
     # The last line is e.g. "mAP=13.323%".
     mAP_percent_line = output.splitlines()[-1].decode('utf-8')
 

@@ -26,7 +26,7 @@
     "direct": {
       "ignore_return_code": "no",
       "run_time": {
-        "run_cmd_main": "$<<CK_ENV_COMPILER_PYTHON_FILE>>$ $<<CK_ENV_MLPERF_INFERENCE_V05>>$/classification_and_detection/python/main_extended.py --config=../user.conf --profile=$<<CK_LOADGEN_REF_PROFILE>>$ --dataset-path=$<<CK_ENV_DATASET_COCO>>$ --model=$<<CK_ENV_TENSORFLOW_MODEL_FROZEN_GRAPH>>$ --dataset-height=$<<CK_ENV_TENSORFLOW_MODEL_DEFAULT_HEIGHT>>$ --dataset-width=$<<CK_ENV_TENSORFLOW_MODEL_DEFAULT_WIDTH>>$ --model-name='$<<CK_ENV_TENSORFLOW_MODEL_MODEL_NAME>>$' --backend=$<<CK_LOADGEN_BACKEND>>$ --backend-params=BATCH_SIZE:$<<CK_LOADGEN_TENSORRT_BATCH_SIZE>>$,TENSORRT_PRECISION:$<<CK_LOADGEN_TENSORRT_PRECISION>>$,TENSORRT_DYNAMIC:$<<CK_LOADGEN_TENSORRT_DYNAMIC>>$ --scenario=$<<CK_LOADGEN_SCENARIO>>$ $<<CK_LOADGEN_MODE>>$ $<<CK_LOADGEN_EXTRA_PARAMS>>$",
+        "run_cmd_main": "$<<CK_ENV_COMPILER_PYTHON_FILE>>$ $<<CK_ENV_MLPERF_INFERENCE_V05>>$/classification_and_detection/python/main_extended.py --config=$<<CK_ENV_LOADGEN_CONFIG_FILE>>$ --profile=$<<CK_LOADGEN_REF_PROFILE>>$ --dataset-path=$<<CK_ENV_DATASET_COCO>>$ --model=$<<CK_ENV_TENSORFLOW_MODEL_FROZEN_GRAPH>>$ --dataset-height=$<<CK_ENV_TENSORFLOW_MODEL_DEFAULT_HEIGHT>>$ --dataset-width=$<<CK_ENV_TENSORFLOW_MODEL_DEFAULT_WIDTH>>$ --model-name='$<<CK_ENV_TENSORFLOW_MODEL_MODEL_NAME>>$' --backend=$<<CK_LOADGEN_BACKEND>>$ --backend-params=BATCH_SIZE:$<<CK_LOADGEN_TENSORRT_BATCH_SIZE>>$,TENSORRT_PRECISION:$<<CK_LOADGEN_TENSORRT_PRECISION>>$,TENSORRT_DYNAMIC:$<<CK_LOADGEN_TENSORRT_DYNAMIC>>$ --scenario=$<<CK_LOADGEN_SCENARIO>>$ $<<CK_LOADGEN_MODE>>$ $<<CK_LOADGEN_EXTRA_PARAMS>>$",
 
         "fine_grain_timer_file": "tmp-ck-timer.json",
         "post_process_via_ck": {
@@ -49,6 +49,14 @@
       "name": "MLPerf Inference source",
       "sort": 1,
       "tags": "mlperf,inference,source,dividiti.vision_with_ck"
+    },
+    "loadgen-config-file": {
+      "force_target_as_host": "yes",
+      "add_to_path": "no",
+      "local": "yes",
+      "name": "Loadgen config file",
+      "sort": 10,
+      "tags": "loadgen,config"
     },
     "lib-python-loadgen": {
       "local": "yes",

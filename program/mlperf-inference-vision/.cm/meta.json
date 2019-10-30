@@ -117,14 +117,14 @@
   "run_vars": {
     "CK_BATCH_COUNT": 1,
     "CK_MAX_LATENCY": 0.1,
-    "CK_METRIC_TYPE": "",
+    "CK_METRIC_TYPE": "COCO",
     "CK_SAVE_IMAGES": "NO",
     "CK_SILENT_MODE": "NO",
     "CK_SKIP_IMAGES": 0,
     "CK_TF_CPU_NUM_OF_PROCESSORS": 0,
     "CK_TF_GPU_MEMORY_PERCENT": 50,
 
-    "CK_LOADGEN_REF_PROFILE": "mobilenet-tf",
+    "CK_LOADGEN_REF_PROFILE": "default_tf_object_det_zoo",
     "CK_LOADGEN_SCENARIO": "SingleStream",
     "CK_LOADGEN_BACKEND": "tensorflow",
     "CK_LOADGEN_MODE": "--accuracy",

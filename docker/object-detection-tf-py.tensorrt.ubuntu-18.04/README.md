@@ -1,11 +1,14 @@
 # Object Detection TensorFlow (Python) Docker image
 
 [This image](https://hub.docker.com/r/ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04) is based on
-[the TensorRT 19.07 image](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_19-07.html) from NVIDIA
+[the TensorRT 19.10 image](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_19-10.html) from NVIDIA
 (which is in turn based on Ubuntu 18.04) with [CUDA](https://developer.nvidia.com/cuda-zone) 10.1 and [TensorRT](https://developer.nvidia.com/tensorrt) 5.1.5.
 
+**NB:** [The TensorRT 19.11 image](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_19-11.html) has CUDA 10.2 and TensorRT 6.0.1, which
+are not compatible with TensorFlow 1.15.
+
 The image includes about a dozen of [TensorFlow models for object detection](#models), the [COCO 2017 validation dataset](http://cocodataset.org),
-and two [TensorFlow 1.14.0](https://github.com/tensorflow/tensorflow/releases/tag/v1.14.0) variants:
+and two [TensorFlow 1.15.0](https://github.com/tensorflow/tensorflow/releases/tag/v1.15.0) variants:
 - TensorFlow prebuilt for the CPU (installed via pip).
 - TensorFlow built from sources for the GPU, with TensorRT support enabled.
 

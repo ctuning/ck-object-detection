@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/tensorrt:19.07-py3
+FROM nvcr.io/nvidia/tensorrt:19.10-py3
 
 LABEL maintainer="Anton Lokhmotov <anton@dividiti.com>"
 
@@ -72,16 +72,14 @@ RUN ${CK_PYTHON} -m pip install --ignore-installed pip setuptools --user
 
 
 #-----------------------------------------------------------------------------#
-# Step 1. Install prebuilt TensorFlow v1.14 (via pip).
-# NB: We cannot install prebuilt TensorFlow v1.14 with CUDA support,
-# as it needs CUDA 10.0.
+# Step 1. Install prebuilt TensorFlow v1.15 (via pip).
 #-----------------------------------------------------------------------------#
-RUN ck install package --tags=lib,tensorflow,vcpu,vprebuilt,v1.14
+RUN ck install package --tags=lib,tensorflow,python-package --force_version=1.15.2
 #-----------------------------------------------------------------------------#
 
 
 #-----------------------------------------------------------------------------#
-# Step 2. Install TensorFlow v1.14 with CUDA/TensorRT support from sources.
+# Step 2. Install TensorFlow v1.15 with CUDA/TensorRT support from sources.
 #-----------------------------------------------------------------------------#
 # Install TF dependencies that currently have no CK packages.
 RUN ${CK_PYTHON} -m pip install gast --user
@@ -90,7 +88,7 @@ RUN ${CK_PYTHON} -m pip install absl-py --user
 RUN ${CK_PYTHON} -m pip install wrapt --user
 RUN ${CK_PYTHON} -m pip install astor --user
 RUN ${CK_PYTHON} -m pip install termcolor --user
-RUN ${CK_PYTHON} -m pip install tensorflow-estimator==1.14.0 --user
+RUN ${CK_PYTHON} -m pip install tensorflow-estimator==1.15.0 --user
 RUN ${CK_PYTHON} -m pip install keras_applications==1.0.6 --no-deps --user
 RUN ${CK_PYTHON} -m pip install keras_preprocessing==1.0.5 --no-deps --user
 # Detect TF CUDA dependencies.
@@ -101,7 +99,7 @@ RUN ck detect soft:compiler.cuda --full_path=/usr/local/cuda-10.1/bin/nvcc \
 RUN ck install ck-env:package:jdk-8u131-universal
 RUN ck install ck-env:package:tool-bazel-0.25.2-linux
 # Build TF from sources with TensorRT support. Remove the Bazel cache (~16 GB) once done.
-RUN ck install package --tags=lib,tensorflow,vsrc,vcuda,v1.14 --env.CK_TF_NEED_TENSORRT="YES"\
+RUN ck install package --tags=lib,tensorflow,vsrc,vcuda,v1.15 --env.CK_TF_NEED_TENSORRT="YES"\
  && rm -rf ~/.cache/bazel
 #-----------------------------------------------------------------------------#
 

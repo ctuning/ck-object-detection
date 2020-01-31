@@ -82,15 +82,21 @@ RUN ck install package --tags=lib,tensorflow,python-package --force_version=1.15
 # Step 2. Install TensorFlow v1.15 with CUDA/TensorRT support from sources.
 #-----------------------------------------------------------------------------#
 # Install TF dependencies that currently have no CK packages.
-RUN ${CK_PYTHON} -m pip install gast --user
+# Required versions: google-pasta>=0.1.6, opt-einsum>=2.3.2, grpcio>=1.8.6.
+RUN ${CK_PYTHON} -m pip install google-pasta --user
+RUN ${CK_PYTHON} -m pip install opt-einsum --user
+RUN ${CK_PYTHON} -m pip install grpcio --user
 RUN ${CK_PYTHON} -m pip install protobuf --user
 RUN ${CK_PYTHON} -m pip install absl-py --user
 RUN ${CK_PYTHON} -m pip install wrapt --user
 RUN ${CK_PYTHON} -m pip install astor --user
 RUN ${CK_PYTHON} -m pip install termcolor --user
-RUN ${CK_PYTHON} -m pip install tensorflow-estimator==1.15.0 --user
-RUN ${CK_PYTHON} -m pip install keras_applications==1.0.6 --no-deps --user
-RUN ${CK_PYTHON} -m pip install keras_preprocessing==1.0.5 --no-deps --user
+# Exact versions: gast==0.2.2, tensorboard==1.15.0, tensorflow-estimator=1.15.1.
+RUN ${CK_PYTHON} -m pip install gast==0.2.2 --user
+RUN ${CK_PYTHON} -m pip install tensorboard==1.15.0 --user
+RUN ${CK_PYTHON} -m pip install tensorflow-estimator==1.15.1 --user
+RUN ${CK_PYTHON} -m pip install keras_applications==1.0.8 --no-deps --user
+RUN ${CK_PYTHON} -m pip install keras_preprocessing==1.1.0 --no-deps --user
 # Detect TF CUDA dependencies.
 RUN ck detect soft:compiler.cuda --full_path=/usr/local/cuda-10.1/bin/nvcc \
  && ck detect soft:lib.cublas --full_path=/usr/lib/x86_64-linux-gnu/libcublas.so \

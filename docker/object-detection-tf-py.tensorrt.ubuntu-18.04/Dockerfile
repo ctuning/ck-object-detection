@@ -1,3 +1,5 @@
+# 19.10 is the last TensorRT image that supports CUDA 10.1.
+# (TensorFlow v1.15 is not compatible with CUDA 10.2.)
 FROM nvcr.io/nvidia/tensorrt:19.10-py3
 
 LABEL maintainer="Anton Lokhmotov <anton@dividiti.com>"
@@ -105,7 +107,9 @@ RUN ck detect soft:compiler.cuda --full_path=/usr/local/cuda-10.1/bin/nvcc \
 RUN ck install ck-env:package:jdk-8u131-universal
 RUN ck install ck-env:package:tool-bazel-0.25.2-linux
 # Build TF from sources with TensorRT support. Remove the Bazel cache (~16 GB) once done.
-RUN ck install package --tags=lib,tensorflow,vsrc,vcuda,v1.15 --env.CK_TF_NEED_TENSORRT="YES"\
+RUN ck pull repo:ck-env
+RUN ck install package --tags=lib,tensorflow,vsrc,vcuda,v1.15.2 \
+--env.CK_TF_NEED_TENSORRT=YES --cus.version=1.15.2\
  && rm -rf ~/.cache/bazel
 #-----------------------------------------------------------------------------#
 

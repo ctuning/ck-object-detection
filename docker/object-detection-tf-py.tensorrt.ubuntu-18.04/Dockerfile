@@ -1,6 +1,4 @@
-# 19.10 is the last TensorRT image that supports CUDA 10.1.
-# (TensorFlow v1.15 and v2.0 are not compatible with CUDA 10.2.)
-FROM nvcr.io/nvidia/tensorrt:19.10-py3
+FROM nvcr.io/nvidia/tensorrt:20.03-py3
 
 LABEL maintainer="Anton Lokhmotov <anton@dividiti.com>"
 
@@ -96,34 +94,36 @@ RUN ${CK_PYTHON} -m pip install --user h5py==2.10.0                # exact?
 RUN ${CK_PYTHON} -m pip install --user keras-applications==1.0.8   # >=1.0.8
 RUN ${CK_PYTHON} -m pip install --user keras-preprocessing==1.1.0  # >=1.0.5
 RUN ${CK_PYTHON} -m pip install --user markdown==3.2.1             # >=2.6.8
-RUN ${CK_PYTHON} -m pip install --user numpy==1.17.2               # <2.0,>=1.16.0
+RUN ${CK_PYTHON} -m pip install --user numpy==1.18.2               # <2.0,>=1.16.0
 RUN ${CK_PYTHON} -m pip install --user oauthlib==3.1.0             # ?
 RUN ${CK_PYTHON} -m pip install --user opt-einsum==3.2.0           # >=2.3.2
-RUN ${CK_PYTHON} -m pip install --user protobuf==3.6.1             # >=3.6.1
+RUN ${CK_PYTHON} -m pip install --user protobuf==3.11.3            # >=3.8.0
 RUN ${CK_PYTHON} -m pip install --user pyasn1==0.4.8               # <0.5.0,>=0.4.6
 RUN ${CK_PYTHON} -m pip install --user pyasn1-modules==0.2.8       # >=0.2.1
 RUN ${CK_PYTHON} -m pip install --user requests==2.23.0            # <3,>=2.21.0
 RUN ${CK_PYTHON} -m pip install --user requests-oauthlib==1.3.0    # >=0.7.0
 RUN ${CK_PYTHON} -m pip install --user rsa==4.0                    # <4.1,>=3.1.4
+RUN ${CK_PYTHON} -m pip install --user scipy==1.4.1                # ==1.4.1 (exact)
 RUN ${CK_PYTHON} -m pip install --user setuptools==46.1.3          # >=41.0.0
-RUN ${CK_PYTHON} -m pip install --user tensorboard==2.0.2          # <2.1.0,>=2.0.0 (almost exact)
-RUN ${CK_PYTHON} -m pip install --user tensorflow-estimator==2.0.1 # <2.1.0,>=2.0.0 (almost exact)
+RUN ${CK_PYTHON} -m pip install --user six==1.14.0                 # >=1.12.0
+RUN ${CK_PYTHON} -m pip install --user tensorboard==2.1.1          # <2.2.0,>=2.1.0 (almost exact)
+RUN ${CK_PYTHON} -m pip install --user tensorflow-estimator==2.1.0 # <2.2.0,>=2.1.0 (almost exact)
 RUN ${CK_PYTHON} -m pip install --user termcolor==1.1.0            # >=1.1.0
 RUN ${CK_PYTHON} -m pip install --user wheel==0.30.0               # >=0.26
 RUN ${CK_PYTHON} -m pip install --user werkzeug==1.0.1             # >=0.11.15
 RUN ${CK_PYTHON} -m pip install --user wrapt==1.11.2               # >=1.11.1
 
 # Detect TF CUDA dependencies.
-RUN ck detect soft:compiler.cuda --full_path=/usr/local/cuda-10.1/bin/nvcc \
+RUN ck detect soft:compiler.cuda --full_path=/usr/local/cuda-10.2/bin/nvcc \
  && ck detect soft:lib.cublas --full_path=/usr/lib/x86_64-linux-gnu/libcublas.so \
  && ck detect soft:lib.cudnn
 # Install TF build dependencies.
 RUN ck install ck-env:package:jdk-8u131-universal
-RUN ck install ck-env:package:tool-bazel-0.26.1-linux
+RUN ck install ck-env:package:tool-bazel-0.27.1-linux
 # Build TF from sources with TensorRT support. Remove the Bazel cache (~16 GB) once done.
 RUN ck pull repo:ck-env
-RUN ck install package --tags=lib,tensorflow,vsrc,vcuda,v2.0.1 \
---env.CK_TF_NEED_TENSORRT=YES --cus.version=2.0.1\
+RUN ck install package --tags=lib,tensorflow,vsrc,vcuda,v2.1.0 \
+--env.CK_TF_NEED_TENSORRT=YES --cus.version=2.1.0\
  && rm -rf ~/.cache/bazel
 #-----------------------------------------------------------------------------#
 

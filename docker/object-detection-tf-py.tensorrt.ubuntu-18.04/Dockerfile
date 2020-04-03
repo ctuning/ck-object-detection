@@ -1,5 +1,5 @@
 # 19.10 is the last TensorRT image that supports CUDA 10.1.
-# (TensorFlow v1.15 is not compatible with CUDA 10.2.)
+# (TensorFlow v1.15 and v2.0 are not compatible with CUDA 10.2.)
 FROM nvcr.io/nvidia/tensorrt:19.10-py3
 
 LABEL maintainer="Anton Lokhmotov <anton@dividiti.com>"
@@ -74,42 +74,56 @@ RUN ${CK_PYTHON} -m pip install --ignore-installed pip setuptools --user
 
 
 #-----------------------------------------------------------------------------#
-# Step 1. Install prebuilt TensorFlow v1.15 (via pip).
+# Step 1. Install prebuilt TensorFlow v2.0 (via pip).
 #-----------------------------------------------------------------------------#
-RUN ck install package --tags=lib,tensorflow,python-package --force_version=1.15.2
+RUN ck install package --tags=lib,tensorflow,python-package --force_version=2.0.1
 #-----------------------------------------------------------------------------#
 
 
 #-----------------------------------------------------------------------------#
-# Step 2. Install TensorFlow v1.15 with CUDA/TensorRT support from sources.
+# Step 2. Install TensorFlow v2.0 with CUDA/TensorRT support from sources.
 #-----------------------------------------------------------------------------#
 # Install TF dependencies that currently have no CK packages.
-# Required versions: google-pasta>=0.1.6, opt-einsum>=2.3.2, grpcio>=1.8.6.
-RUN ${CK_PYTHON} -m pip install google-pasta --user
-RUN ${CK_PYTHON} -m pip install opt-einsum --user
-RUN ${CK_PYTHON} -m pip install grpcio --user
-RUN ${CK_PYTHON} -m pip install protobuf --user
-RUN ${CK_PYTHON} -m pip install absl-py --user
-RUN ${CK_PYTHON} -m pip install wrapt --user
-RUN ${CK_PYTHON} -m pip install astor --user
-RUN ${CK_PYTHON} -m pip install termcolor --user
-# Exact versions: gast==0.2.2, tensorboard==1.15.0, tensorflow-estimator=1.15.1.
-RUN ${CK_PYTHON} -m pip install gast==0.2.2 --user
-RUN ${CK_PYTHON} -m pip install tensorboard==1.15.0 --user
-RUN ${CK_PYTHON} -m pip install tensorflow-estimator==1.15.1 --user
-RUN ${CK_PYTHON} -m pip install keras_applications==1.0.8 --no-deps --user
-RUN ${CK_PYTHON} -m pip install keras_preprocessing==1.1.0 --no-deps --user
+RUN ${CK_PYTHON} -m pip install --user absl-py==0.9.0              # >=0.7.0
+RUN ${CK_PYTHON} -m pip install --user astor==0.7.1                # >=0.6.0
+RUN ${CK_PYTHON} -m pip install --user cachetools==4.0.0           # <5.0,>=2.0.0
+RUN ${CK_PYTHON} -m pip install --user gast==0.2.2                 # ==0.2.2 (exact)
+RUN ${CK_PYTHON} -m pip install --user google-auth==1.13.1         # <2,>=1.6.3
+RUN ${CK_PYTHON} -m pip install --user google-auth-oauthlib==0.4.1 # <0.5,>=0.4.1
+RUN ${CK_PYTHON} -m pip install --user google-pasta==0.2.0         # >=0.1.6
+RUN ${CK_PYTHON} -m pip install --user grpcio==1.27.2              # >=1.8.6
+RUN ${CK_PYTHON} -m pip install --user h5py==2.10.0                # exact?
+RUN ${CK_PYTHON} -m pip install --user keras-applications==1.0.8   # >=1.0.8
+RUN ${CK_PYTHON} -m pip install --user keras-preprocessing==1.1.0  # >=1.0.5
+RUN ${CK_PYTHON} -m pip install --user markdown==3.2.1             # >=2.6.8
+RUN ${CK_PYTHON} -m pip install --user numpy==1.17.2               # <2.0,>=1.16.0
+RUN ${CK_PYTHON} -m pip install --user oauthlib==3.1.0             # ?
+RUN ${CK_PYTHON} -m pip install --user opt-einsum==3.2.0           # >=2.3.2
+RUN ${CK_PYTHON} -m pip install --user protobuf==3.6.1             # >=3.6.1
+RUN ${CK_PYTHON} -m pip install --user pyasn1==0.4.8               # <0.5.0,>=0.4.6
+RUN ${CK_PYTHON} -m pip install --user pyasn1-modules==0.2.8       # >=0.2.1
+RUN ${CK_PYTHON} -m pip install --user requests==2.23.0            # <3,>=2.21.0
+RUN ${CK_PYTHON} -m pip install --user requests-oauthlib==1.3.0    # >=0.7.0
+RUN ${CK_PYTHON} -m pip install --user rsa==4.0                    # <4.1,>=3.1.4
+RUN ${CK_PYTHON} -m pip install --user setuptools==46.1.3          # >=41.0.0
+RUN ${CK_PYTHON} -m pip install --user tensorboard==2.0.2          # <2.1.0,>=2.0.0 (almost exact)
+RUN ${CK_PYTHON} -m pip install --user tensorflow-estimator==2.0.1 # <2.1.0,>=2.0.0 (almost exact)
+RUN ${CK_PYTHON} -m pip install --user termcolor==1.1.0            # >=1.1.0
+RUN ${CK_PYTHON} -m pip install --user wheel==0.30.0               # >=0.26
+RUN ${CK_PYTHON} -m pip install --user werkzeug==1.0.1             # >=0.11.15
+RUN ${CK_PYTHON} -m pip install --user wrapt==1.11.2               # >=1.11.1
+
 # Detect TF CUDA dependencies.
 RUN ck detect soft:compiler.cuda --full_path=/usr/local/cuda-10.1/bin/nvcc \
  && ck detect soft:lib.cublas --full_path=/usr/lib/x86_64-linux-gnu/libcublas.so \
  && ck detect soft:lib.cudnn
 # Install TF build dependencies.
 RUN ck install ck-env:package:jdk-8u131-universal
-RUN ck install ck-env:package:tool-bazel-0.25.2-linux
+RUN ck install ck-env:package:tool-bazel-0.26.1-linux
 # Build TF from sources with TensorRT support. Remove the Bazel cache (~16 GB) once done.
 RUN ck pull repo:ck-env
-RUN ck install package --tags=lib,tensorflow,vsrc,vcuda,v1.15.2 \
---env.CK_TF_NEED_TENSORRT=YES --cus.version=1.15.2\
+RUN ck install package --tags=lib,tensorflow,vsrc,vcuda,v2.0.1 \
+--env.CK_TF_NEED_TENSORRT=YES --cus.version=2.0.1\
  && rm -rf ~/.cache/bazel
 #-----------------------------------------------------------------------------#
 

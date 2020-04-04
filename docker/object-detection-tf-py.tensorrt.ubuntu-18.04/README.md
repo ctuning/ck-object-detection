@@ -3,18 +3,14 @@
 [This collection of images](https://hub.docker.com/r/ctuning/object-detection-tf-py.tensorrt.ubuntu-18.04) from [dividiti](http://dividiti.com)
 is based on the [TensorRT images](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/) from NVIDIA (which are in turn based on Ubuntu 18.04):
 
-- `Dockerfile` (to be named `Dockerfile_20.03-py3_tf-2.1.0`): [TensorFlow 2.1.0](https://github.com/tensorflow/tensorflow/releases/tag/v2.1.0)
-  based on the [20.03-py3](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_20-03.html) image
-  with [CUDA](https://developer.nvidia.com/cuda-zone) 10.2.89 and [TensorRT](https://developer.nvidia.com/tensorrt) 7.0.0.
-- `Dockerfile_19.10-py3_tf-2.0.1`: [TensorFlow 2.0.1](https://github.com/tensorflow/tensorflow/releases/tag/v2.0.1)
- based on the [19.10-py3](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_19-10.html) image
- with [CUDA](https://developer.nvidia.com/cuda-zone) 10.1.243 and [TensorRT](https://developer.nvidia.com/tensorrt) 6.0.1.
-- `Dockerfile_19.10-py3_tf-1.15.2`: [TensorFlow 1.15.2](https://github.com/tensorflow/tensorflow/releases/tag/v1.15.2)
- based on the [19.10-py3](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_19-10.html) image
- with [CUDA](https://developer.nvidia.com/cuda-zone) 10.1.243 and [TensorRT](https://developer.nvidia.com/tensorrt) 6.0.1.
-- `Dockerfile_19.07-py3_tf-1.14.0`: [TensorFlow 1.14.0](https://github.com/tensorflow/tensorflow/releases/tag/v1.14.0)
- based on the [19.07-py3](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_19-07.html) image
- with [CUDA](https://developer.nvidia.com/cuda-zone) 10.1.168 and [TensorRT](https://developer.nvidia.com/tensorrt) 5.1.5.
+| `Dockerfile` | Base image | [CUDA](https://developer.nvidia.com/cuda-zone) | [TensorRT](https://developer.nvidia.com/tensorrt) | [TensorFlow](https://www.tensorflow.org/) |
+|-|-|-|-|-|
+`Dockerfile` (`Dockerfile_20.03-py3_tf-2.1.0`) | [20.03-py3](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_20-03.html) | 10.2.89 | 7.0.0 | [2.1.0](https://github.com/tensorflow/tensorflow/releases/tag/v2.1.0) |
+`Dockerfile_19.10-py3_tf-2.0.1` | [19.10-py3](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_19-10.html) | 10.1.243 | 6.0.1 | [2.0.1](https://github.com/tensorflow/tensorflow/releases/tag/v2.0.1) |
+| `Dockerfile_19.10-py3_tf-1.15.2` | [19.10-py3](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_19-10.html) | 10.1.243 | 6.0.1 | [1.15.2](https://github.com/tensorflow/tensorflow/releases/tag/v1.15.2) |
+| `Dockerfile_19.07-py3_tf-1.14.0` | [19.07-py3](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_19-07.html) | 10.1.168 | 5.1.5 | [1.14.0](https://github.com/tensorflow/tensorflow/releases/tag/v1.14.0) |
+
+**NB:** [19.10-py3](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_19-10.html) was the last base image to support CUDA 10.1. TensorFlow 1.15, 2.0 and 2.1 all require patching (done by CK) to work with CUDA 10.2.
 
 The images include about a dozen of [TensorFlow models for object detection](#models), the [COCO 2017 validation dataset](http://cocodataset.org),
 and two [TensorFlow](https://www.tensorflow.org/ ) variants:

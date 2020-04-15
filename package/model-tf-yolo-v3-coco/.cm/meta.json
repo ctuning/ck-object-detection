@@ -12,6 +12,8 @@
       "PACKAGE_NAME": "yolo_v3_coco.tar.gz",
       "PACKAGE_NAME1": "aaa",
       "PACKAGE_URL": "https://zenodo.org/record/3386327/files/",
+      "PACKAGE_UNTAR": "YES",
+      "PACKAGE_UNZIP": "YES",
       "WEIGHTS_FILE": "model.ckpt"
     },
     "model_id": "yolo_v3_coco",

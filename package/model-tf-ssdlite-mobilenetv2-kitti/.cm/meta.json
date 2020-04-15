@@ -12,6 +12,8 @@
       "PACKAGE_NAME": "kitti-model-ssdlite-mobilenetv2.tar.gz",
       "PACKAGE_NAME1": "aaa",
       "PACKAGE_URL": "https://www.dropbox.com/s/p6k0j7p9ukux3wt/",
+      "PACKAGE_UNTAR": "YES",
+      "PACKAGE_UNZIP": "YES",
       "PIPELINE_CONFIG": "pipeline.config",
       "WEIGHTS_FILE": "model.ckpt"
     },

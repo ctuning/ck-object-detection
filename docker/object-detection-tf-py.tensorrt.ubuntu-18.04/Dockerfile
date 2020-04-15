@@ -72,9 +72,9 @@ RUN ${CK_PYTHON} -m pip install --ignore-installed pip setuptools --user
 
 
 #-----------------------------------------------------------------------------#
-# Step 1. Install prebuilt TensorFlow v2.0 (via pip).
+# Step 1. Install prebuilt TensorFlow v2.1 (via pip).
 #-----------------------------------------------------------------------------#
-RUN ck install package --tags=lib,tensorflow,python-package --force_version=2.0.1
+RUN ck install package --tags=lib,tensorflow,python-package --force_version=2.1.0
 #-----------------------------------------------------------------------------#
 
 

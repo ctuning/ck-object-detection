@@ -6,7 +6,7 @@ is based on the [TensorRT images](https://docs.nvidia.com/deeplearning/sdk/tenso
 | `Dockerfile` | Base image | [CUDA](https://developer.nvidia.com/cuda-zone) | [TensorRT](https://developer.nvidia.com/tensorrt) | [TensorFlow](https://www.tensorflow.org/) |
 |-|-|-|-|-|
 | `Dockerfile` (`Dockerfile_20.03-py3_tf-2.1.0`) | [20.03-py3](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_20-03.html) | 10.2.89 | 7.0.0 | [2.1.0](https://github.com/tensorflow/tensorflow/releases/tag/v2.1.0) |
-| `Dockerfile_20.03-py3_tf-2.0.1`) | [20.03-py3](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_20-03.html) | 10.2.89 | 7.0.0 | [2.0.1](https://github.com/tensorflow/tensorflow/releases/tag/v2.0.1) |
+| `Dockerfile_20.03-py3_tf-2.0.1`  | [20.03-py3](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_20-03.html) | 10.2.89  | 7.0.0 | [2.0.1](https://github.com/tensorflow/tensorflow/releases/tag/v2.0.1) |
 | `Dockerfile_19.10-py3_tf-2.0.1`  | [19.10-py3](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_19-10.html) | 10.1.243 | 6.0.1 | [2.0.1](https://github.com/tensorflow/tensorflow/releases/tag/v2.0.1) |
 | `Dockerfile_19.10-py3_tf-1.15.2` | [19.10-py3](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_19-10.html) | 10.1.243 | 6.0.1 | [1.15.2](https://github.com/tensorflow/tensorflow/releases/tag/v1.15.2) |
 | `Dockerfile_19.07-py3_tf-1.14.0` | [19.07-py3](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_19-07.html) | 10.1.168 | 5.1.5 | [1.14.0](https://github.com/tensorflow/tensorflow/releases/tag/v1.14.0) |
